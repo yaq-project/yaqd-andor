@@ -1,0 +1,60 @@
+# byte-compiled
+__pycache__/
+*.py[cod]
+
+# direnv
+*.envrc
+
+# distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+temp/
+*.egg-info/
+.installed.cfg
+*.egg
+*.p
+
+# emacs
+flycheck_*.el
+.projectile
+*.#*
+
+# images
+*.jpg
+*.gif
+*.png
+!logo/logo.png
+*.svg
+*.ico
+
+# mypy
+*.mypy_cache/
+
+# tests / coverage reports
+.coverage
+.coverage.*
+.cache
+coverage.xml
+*,cover
+.pytest_cache/*
+
+# vim
+*.sw?
+yaqd_andor/atblkbx.dll
+yaqd_andor/atcl_bitflow.dll
+yaqd_andor/atcore.dll
+yaqd_andor/atdevregcam.dll
+yaqd_andor/atusb_libusb10.dll
+yaqd_andor/atcore.lib
+yaqd_andor/atcore.h

@@ -12,3 +12,18 @@ Daemons for [Andor](https://andor.oxinst.com/?gclid=CjwKCAiA4rGCBhAQEiwAelVtiwSR
 This package contains the following daemon(s):
 
 - https://yaq.fyi/daemons/neo-triggered
+
+To run this daemon, you must also have access to the ANDOR sdk3 driver files:
+
+- atcore.h
+- atcore.lib
+- atblklx.dll
+- actl_bitflow.dll
+- atcore.dll
+- atdevregcam.dll
+- atdevsimcam.dll (optional)
+- atusb_libusb10.dll
+
+atdevsimcam.dll can allow use of Andor's virtual camera, which is useful for remote development.  
+For Windows, these libraries require [Microsoft Build tools for Visual Studio](https://visualstudio.microsoft.com/downloads/) (specifically, the Windows SDK and C++ x64/x86 build tools are needed).
+

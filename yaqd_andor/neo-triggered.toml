@@ -20,72 +20,77 @@ symbols = [
 
 [config]
 
-[config.corrections]
+[config.serial_number]
+type = "string"
 
-[config.corrections.spurious_noise_filter]
-type = "bool"
-doc = "Corrects high value pixels using mean of surrounding pixels."
-default = false
+# [config.corrections]
 
-[config.corrections.static_blemish_correction]
-type = "bool"
-default = false
+# [config.corrections.spurious_noise_filter]
+# type = "bool"
+# doc = "Corrects high value pixels using mean of surrounding pixels."
+# default = false
 
-[config.binning]
+# [config.corrections.static_blemish_correction]
+# type = "bool"
+# default = false
 
-[config.binning.bin]
+# [config.binning]
 
-[config.binning.vstack]
+# [config.binning.bin]
 
-[config.binning.hstack]
+# [config.binning.vstack]
 
-[config.aoi]
+# [config.binning.hstack]
 
-[config.aoi.width]
-type = ["null", "int"]
-doc = ""
-default = "__null__"
+# [config.aoi]
 
-[config.aoi.left]
-type = ["null", "int"]
-doc = "Specify left most coordinate."
-default = "__null__"
+# [config.aoi.width]
+# type = ["null", "int"]
+# doc = ""
+# default = "__null__"
 
-[config.aoi.height]
-type = ["null", "int"]
-doc = ""
-default = "__null__"
+# [config.aoi.left]
+# type = ["null", "int"]
+# doc = "Specify left most coordinate."
+# default = "__null__"
 
-[config.aoi.top]
-type = ["null", "int", "str"]
-doc = "Specify top coordinate.  For vertical centering, use 'center'"
-default = false
+# [config.aoi.height]
+# type = ["null", "int"]
+# doc = ""
+# default = "__null__"
 
-[config.aoi.vertically_center]
-type = "bool"
-doc = ""
-default = false
+# [config.aoi.top]
+# type = ["null", "int", "string"]
+# doc = "Specify top coordinate.  For vertical centering, use 'center'"
+# default = false
 
-[config.electronic_shuttering_mode]
-type = "str"
-doc = "'rolling' or 'global'"
+# [config.aoi.vertically_center]
+# type = "bool"
+# doc = ""
+# default = false
 
-[config.simple_preamp_gain_control]
-type = "premp_gain_options"
+# [config.electronic_shuttering_mode]
+# type = "str"
+# doc = "'rolling' or 'global'"
 
-[config.transmit_frames]
-type = "bool"
-doc = ""
+# [config.simple_preamp_gain_control]
+# type = "premp_gain_options"
+
+# [config.transmit_frames]
+# type = "bool"
+# doc = ""
 
 [state]
 
 [state.accumulate_count]
 type = "int"
 doc = "Number of images that should be summed to obtain each image."
+default = 1
 
 [state.exposure_time]
 type = "float"
 doc = "Requested Exposure time, in seconds."
+default = 1
 
 [messages]
 
@@ -100,4 +105,4 @@ response = "float"
 
 [messages.get_sensor_info]
 doc = "Return a dictionary containing key information about the sensor."
-response = "map"
+response = {'type'= 'map', 'values'= 'string'}

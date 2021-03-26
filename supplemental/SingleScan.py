@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from atcore import *
+from yaqd_andor import atcore
 import numpy as np
 
 def main() :

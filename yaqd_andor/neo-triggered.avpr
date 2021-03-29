@@ -6,6 +6,11 @@
             "origin": "is-daemon",
             "type": "boolean"
         },
+        "is_virtual": {
+            "default": false,
+            "doc": "Sets whether simcam features are implemented",
+            "type": "boolean"
+        },
         "log_level": {
             "default": "info",
             "doc": "Set daemon log-level.",
@@ -274,10 +279,10 @@
         }
     },
     "traits": [
+        "is-daemon",
         "has-measure-trigger",
         "is-sensor",
-        "has-mapping",
-        "is-daemon"
+        "has-mapping"
     ],
     "types": [
         {

@@ -32,14 +32,14 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         while i < device_count:
             temp = self.sdk3.open(i)
             serial = self.sdk3.get_string(temp, "SerialNumber")
-            if serial == self._config["serial_number"]:
+            if serial == self._config["serial"]:
                 self.hndl = temp
                 print("    Serial No   : ",serial)
                 break
             i += 1
         else:
             raise ConnectionError(
-                r"device with serial number {0} not found".format(self._config["serial_number"])
+                r"device with serial number {0} not found".format(self._config["serial"])
             )
 
         if not self.is_virtual:

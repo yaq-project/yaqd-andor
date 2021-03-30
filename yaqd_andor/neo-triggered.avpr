@@ -71,9 +71,6 @@
                 "null",
                 "string"
             ]
-        },
-        "serial_number": {
-            "type": "string"
         }
     },
     "doc": "",
@@ -279,10 +276,10 @@
         }
     },
     "traits": [
-        "is-daemon",
-        "has-measure-trigger",
         "is-sensor",
-        "has-mapping"
+        "has-measure-trigger",
+        "has-mapping",
+        "is-daemon"
     ],
     "types": [
         {

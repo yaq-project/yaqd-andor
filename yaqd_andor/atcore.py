@@ -1,4 +1,7 @@
 import sys
+import os
+os.chdir(os.path.dirname(__file__))
+
 if sys.version < '3':
     import codecs
     def u(x):

@@ -1,7 +1,6 @@
 __all__ = ["NeoTriggered"]
 
 import asyncio
-from re import L
 import numpy as np
 
 from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
@@ -22,7 +21,6 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
         self._channel_names = ["image"]
-        self._channel_shapes = {"image": (1920, 1080)}
         self.sdk3 = ATCore() # Initialise SDK3
         # find devices
         self.is_virtual = self._config["is_virtual"]
@@ -68,11 +66,15 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                     print("not writable")
                     time.sleep(1)
             print("exposure time is writable:", bool(self.sdk3.is_writable(self.hndl, "ExposureTime")))
-            self.sdk3.set_float(self.hndl, "ExposureTime", self._state["exposure_time"])
+        self.sdk3.set_float(self.hndl, "ExposureTime", self._state["exposure_time"])
         # set cycle mode to fixed
         # self.sdk3.set_enumerated_string(
         #     self.hndl, "CycleMode", "Fixed"
         # )
+        height = self.sdk3.get_int(self.hndl, "SensorHeight")
+        width = self.sdk3.get_int(self.hndl, "SensorWidth")
+        self._channel_shapes = {"image": (height, width)}
+
         print(self.sdk3.get_enumerated_string(
             self.hndl, "SimplePreAmpGainControl"
         ))
@@ -90,6 +92,7 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             self.logger.debug("Waiting on buffer")
             (returnedBuf, returnedSize) = self.sdk3.wait_buffer(self.hndl)  # hangs
             self.logger.debug("Done waiting on buffer")
+            self.logger.debug(f"{imageSizeBytes}, {returnedSize}")
         except ATCoreException as err:
             self.logger.error(f"SDK3 Error {err}")
 
@@ -97,21 +100,22 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             def __init__(self, buf, shape, strides):
                 self.__array_interface__ = {
                     "shape": shape,
-                    "typestr": "<2u",
+                    "typestr": "<u2",
                     "data": buf,
                     "strides": strides,
                     "version": 3,
                 }
         stride = self.sdk3.get_int(self.hndl, "AOIStride")
-        pixels = np.array(ArrayInterface(buf.data, self._channel_shapes["image"], (stride, 1)))
+        pixels = np.array(ArrayInterface(buf.data, self._channel_shapes["image"], (stride, 2)))
         self.logger.debug(f"{pixels.size}, {np.prod(self._channel_shapes['image'])}")
         self.sdk3.command(self.hndl,"AcquisitionStop")
         self.sdk3.flush(self.hndl)
         pixels = np.ascontiguousarray(pixels)
-        print(pixels.__array_interface__)
-        return {"image": np.ascontiguousarray(pixels)}
-        
- 
+        arrayinterface = pixels.__array_interface__
+        arrayinterface["data"] = pixels.tobytes()
+
+        return {"image": arrayinterface}
+
     def get_sensor_info(self):
         pass
 
@@ -142,3 +146,5 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                 return self.sdk3.__getattribute__(call)(self.hndl, feature.name, feature.value)
         else:
             raise ValueError(f"call {call} is not implemented")
+
+

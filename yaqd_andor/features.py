@@ -27,7 +27,7 @@ feature_specs = dict(
     camera_memory = FeatureSpec("CameraMemory", "integer", "a"),
     camera_model = FeatureSpec("CameraModel", "string", "nsz"),
     camera_name = FeatureSpec("CameraName", "string", "anz"),
-    cycle_mode = FeatureSpec("CycleMode", "enumerated", "ns"),
+    cycle_mode = FeatureSpec("CycleMode", "enumerated", "nsz"),
     electronic_shuttering_mode = FeatureSpec("ElectronicShutteringMode", "enumerated", "nsz"),
     event_enable = FeatureSpec("EventEnable", "boolean", "nz"),
     events_missed_event = FeatureSpec("EventsMissedEvent", "integer", "nz"),
@@ -36,7 +36,7 @@ feature_specs = dict(
     exposure_end_event = FeatureSpec("ExposureEndEvent", "integer", "nz"),
     exposure_start_event = FeatureSpec("ExposureStartEvent", "integer", "nz"),
     external_trigger_delay = FeatureSpec("ExposureTriggerDelay", "float", "z"),
-    # fan_speed = FeatureSpec("FanSpeed", "enumerated", "ansz"),
+    fan_speed = FeatureSpec("FanSpeed", "enumerated", "ansz"),
     # fast_aoi_frame_rate_enable = FeatureSpec("FastAOIFrameRateEnable", "boolean", "nz"),
     firmware_version = FeatureSpec("FirmwareVersion", "string", "anz"),
     frame_count = FeatureSpec("FrameCount", "integer", "ansz"),
@@ -77,22 +77,29 @@ shared_features = [k for k,v in feature_specs.items() if \
 simcam_features = [k for k,v in feature_specs.items() if "s" in v.availability]
 neo_features = [k for k,v in feature_specs.items() if "n" in v.availability]
 
-# print(simcam_features)
-# print(neo_features)
-# print(shared_features)
+if False:
+    def generate_getter(self, call:str):
+        def getter(self):
+            if self.sdk.is_readable(self.hndl, self.sdk_name):
+                return self.sdk.__getattribute__(call)(self.hndl, self.sdk_name)
+            else:
+                raise ValueError(f"call {call} is not currently readable")
+        return getter
 
-# int - set, get, max, min
-# float - set, get, max, min
-# bool - set, get
-# enum - set str/idx, get str/idx
-# string - set, get, max length
-# command - command
+    def generate_setter(self, call:str):
+        def setter(self, value):
+            if self.sdk.is_writable(self.hndl, self.sdk_name):
+                return self.sdk.__getattribute__(call)(self.hndl, self.sdk_name, value)
+            else:
+                raise ValueError(f"call {call} is not currently writable")
+        return setter
+
 
 class Feature:
     def __init__(self, sdk, hndl, spec):
         """
         command:  feature()
-        get: feature
+        get: feature.get()
         set: feature.set(value)
         """
         self.type = spec.type
@@ -100,67 +107,70 @@ class Feature:
         self.sdk = sdk
         self.hndl = hndl
         self.method = r"{}" + f"_{type}"
+        # feature implemented?
         self.is_implemented = self.sdk.is_implemented(self.hndl, self.sdk_name)
-        # implemented?
         if self.is_implemented:
-                self.__repr__ = self._get
+                self.get = self._get
         else:
             raise NotImplementedError(f"feature {self.sdk_name} is not implemented")
+        # is read only?
         self.is_readonly = self.sdk.is_readonly(self.hndl, self.sdk_name)
         if not self.is_readonly:
             self.set = self._set
-            self._set_call = f"set_{self.type}"
-        # is read only?
         self._get_call = f"get_{self.type}"
 
     def _get(self):
         call = self._get_call
-        if self.sdk.is_readable(self.hndl, call):
+        if self.sdk.is_readable(self.hndl, self.sdk_name):
             return self.sdk.__getattribute__(call)(self.hndl, self.sdk_name)
         else:
             raise TypeError(f"call {call} is not readable")
 
     def _set(self, value):
         call = self._set_call
-        if self.sdk.is_writable(self.hndl, call):
+        if self.sdk.is_writable(self.hndl, self.sdk_name):
             return self.sdk.__getattribute__(call)(self.hndl, self.sdk_name, value)
         else:
-            raise ValueError(f"call {call} is not implemented")    
+            raise ValueError(f"call {call} is not currently writable")    
 
 
-class String(Feature):
+class SDKString(Feature):
     def __init__(self, *args):
         super().__init__(*args)
 
 
-class Float(Feature):
+class SDKFloat(Feature):
     def __init__(self, *args):
         super().__init__(*args)
 
     def max(self) -> float:
-        pass
+        call = self.get_call + "_max"
+        return self.sdk.__getattribute__(call)(self.hndl, self.sdk_name)
 
     def min(self) -> float:
-        pass
+        call = self.get_call + "_min"
+        return self.sdk.__getattribute__(call)(self.hndl, self.sdk_name)
 
 
-class Int(Feature):
+class SDKInt(Feature):
     def __init__(self, *args):
         super().__init__(*args)
         
     def max(self) -> int:
-        pass
+        call = self._get_call + "_max"
+        return self.sdk.__getattribute__(call)(self.hndl, self.sdk_name)
 
     def min(self) -> int:
-        pass
+        call = self._get_call + "_min"
+        return self.sdk.__getattribute__(call)(self.hndl, self.sdk_name)
 
 
-class Bool(Feature):
+class SDKBool(Feature):
     def __init__(self, *args):
         super().__init__(*args)
 
 
-class Command(Feature):
+class SDKCommand(Feature):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         del self._set
@@ -170,12 +180,14 @@ class Command(Feature):
         return self.sdk.command(self.hndl, self.sdk_name)
 
 
-class Enumerated(Feature):
+class SDKEnum(Feature):
     def __init__(self, *args):
         super().__init__(*args)
         self._get_call = self._get_call + "_string"
         self._set_call = self._set_call + "_string"
 
-    def symbols(self):
+    def options(self):
+        """query available feature string options
+        """
         return self.sdk.get_enumerated_string_options(self.hndl, self.sdk_name)
 

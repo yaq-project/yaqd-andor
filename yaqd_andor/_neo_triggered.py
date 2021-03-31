@@ -21,22 +21,23 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
+        self._channel_names = ["image"]
+        self._channel_shapes = {"image": (1920, 1080)}
         self.sdk3 = ATCore() # Initialise SDK3
         # find devices
         self.is_virtual = self._config["is_virtual"]
         device_count = self.sdk3.get_int(self.sdk3.AT_HNDL_SYSTEM, "DeviceCount")
         if device_count == 0:
             raise ConnectionError("No devices found.")
-        i = 0
         # select device
-        while i < device_count:
+        for i in range(device_count):
             temp = self.sdk3.open(i)
             serial = self.sdk3.get_string(temp, "SerialNumber")
             if serial == self._config["serial"]:
                 self.hndl = temp
                 print("    Serial No   : ",serial)
                 break
-            i += 1
+            self.sdk3.close(temp)
         else:
             raise ConnectionError(
                 r"device with serial number {0} not found".format(self._config["serial"])
@@ -48,14 +49,14 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                 "SimplePreAmpGainControl",
                 "16-bit (low noise & high well capacity)"
             )
-            self.sdk3.set_bool(self.hndl, "MetadataEnable", True)
+            # self.sdk3.set_bool(self.hndl, "MetadataEnable", True)
 
-        # set trigger mode to software
-        self.sdk3.set_enumerated_string(
-            self.hndl, "TriggerMode", "Advanced" if self._config["is_virtual"] else "Software"
-        )
-        # set exposure time
         if False:
+            # set trigger mode
+            self.sdk3.set_enumerated_string(
+                self.hndl, "TriggerMode", "Advanced" if self._config["is_virtual"] else "Internal"
+            )
+            # set exposure time
             print("exposure time is implemented:", bool(self.sdk3.is_implemented(self.hndl, "ExposureTime")))
             print("exposure time is read only:", bool(self.sdk3.is_readonly(self.hndl, "ExposureTime")))
             import time
@@ -69,30 +70,48 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             print("exposure time is writable:", bool(self.sdk3.is_writable(self.hndl, "ExposureTime")))
             self.sdk3.set_float(self.hndl, "ExposureTime", self._state["exposure_time"])
         # set cycle mode to fixed
-        self.sdk3.set_enumerated_string(
-            self.hndl, "CycleMode", "Fixed"
-        )
+        # self.sdk3.set_enumerated_string(
+        #     self.hndl, "CycleMode", "Fixed"
+        # )
+        print(self.sdk3.get_enumerated_string(
+            self.hndl, "SimplePreAmpGainControl"
+        ))
+
 
     async def _measure(self):
         # queue buffer
         # todo: queue buffer for n frames
         imageSizeBytes = self.sdk3.get_int(self.hndl, "ImageSizeBytes")
-        buf = np.empty((imageSizeBytes,), dtype='B')
-        self.sdk3.queue_buffer(self.hndl, buf.ctypes.data, imageSizeBytes)
         # acquire frame
-        print("here")
-        print(self.sdk3.get_float(self.hndl, "ExposureTime"))
-        if self._config["is_virtual"]:
+        buf = np.empty((imageSizeBytes,), dtype='B')
+        try:
+            self.sdk3.queue_buffer(self.hndl, buf.ctypes.data, imageSizeBytes)
             self.sdk3.command(self.hndl, "AcquisitionStart")
-            (returnedBuf, returnedSize) = self.sdk3.wait_buffer(self.hndl)
-            # parse readout
-            pixels = buf.view(dtype='H')
-            print(len(pixels))
-            self.sdk3.command(self.hndl,"AcquisitionStop")
-        else:
-            self.sdk3.command(self.hndl, "SoftwareTrigger")
-        return {"image": pixels}
+            self.logger.debug("Waiting on buffer")
+            (returnedBuf, returnedSize) = self.sdk3.wait_buffer(self.hndl)  # hangs
+            self.logger.debug("Done waiting on buffer")
+        except ATCoreException as err:
+            self.logger.error(f"SDK3 Error {err}")
 
+        class ArrayInterface:
+            def __init__(self, buf, shape, strides):
+                self.__array_interface__ = {
+                    "shape": shape,
+                    "typestr": "<2u",
+                    "data": buf,
+                    "strides": strides,
+                    "version": 3,
+                }
+        stride = self.sdk3.get_int(self.hndl, "AOIStride")
+        pixels = np.array(ArrayInterface(buf.data, self._channel_shapes["image"], (stride, 1)))
+        self.logger.debug(f"{pixels.size}, {np.prod(self._channel_shapes['image'])}")
+        self.sdk3.command(self.hndl,"AcquisitionStop")
+        self.sdk3.flush(self.hndl)
+        pixels = np.ascontiguousarray(pixels)
+        print(pixels.__array_interface__)
+        return {"image": np.ascontiguousarray(pixels)}
+        
+ 
     def get_sensor_info(self):
         pass
 
@@ -123,7 +142,3 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                 return self.sdk3.__getattribute__(call)(self.hndl, feature.name, feature.value)
         else:
             raise ValueError(f"call {call} is not implemented")
-
-
-
-

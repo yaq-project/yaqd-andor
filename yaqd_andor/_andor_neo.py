@@ -37,20 +37,27 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                 r"device with serial number {0} not found".format(self._config["serial"])
             )
 
-        self.features = {
-            k:features.obj_from_spec(self.sdk3, self.hndl, v) \
-            for k,v in features.specs.items() if "n" in v.availability
-        }
-        for v in self.features:
-            self.logger.debug(v)
+        self.features = {}
+        for k, v in features.specs.items():
+            if "n" in v.availability:
+                try:
+                    self.features[k] = features.obj_from_spec(
+                        self.sdk3, self.hndl, v
+                    )
+                except NotImplementedError:
+                    self.logger.debug(
+                        f"feature {v.sdk_name} is supposed to be implemented, but is not!"
+                    )
+                    pass
+                # else:
+                #     self.logger.debug(f"{k}, {self.features[k].is_implemented}, {self.features[k].is_readonly}")
 
-        self.sdk3.set_float(self.hndl, "ExposureTime", self._state["exposure_time"])
-        self.sdk3.set_enumerated_string(
-            self.hndl,
-            "SimplePreAmpGainControl",
-            "16-bit (low noise & high well capacity)"
-        )
+        self.features["exposure_time"].set(self._state["exposure_time"])
+        self.features["simple_preamp_gain_control"].set(self._config["simple_preamp_gain_control"])
 
+        # test: poll default aoi params
+        for k in ["aoi_height", "aoi_width", "aoi_top", "aoi_left", "aoi_binning"]:
+            self.logger.debug(f"{k}: {self.features[k].get()}")
         height = self.sdk3.get_int(self.hndl, "AOIHeight")
         width = self.sdk3.get_int(self.hndl, "AOIWidth")
         self._channel_shapes = {"image": (height, width)}

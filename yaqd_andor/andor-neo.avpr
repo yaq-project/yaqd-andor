@@ -2,7 +2,7 @@
     "config": {
         "aoi_height": {
             "default": null,
-            "doc": "",
+            "doc": "Specify the pixel height. \\\n    Can be no larger than sensor_height - (aoi_top - 1). \\\n    Default is the full height of camera. \\\n    ",
             "type": [
                 "null",
                 "int"
@@ -10,7 +10,7 @@
         },
         "aoi_left": {
             "default": null,
-            "doc": "Specify left most coordinate.",
+            "doc": "Specify left most coordinate of AOI. \\\n    Defaults to the full left of the sensor (1). \\\n    ",
             "type": [
                 "null",
                 "int"
@@ -18,7 +18,7 @@
         },
         "aoi_top": {
             "default": null,
-            "doc": "Specify top coordinate (units of pixels).",
+            "doc": "Specify top coordinate (units of pixels). \\\n    Defaults to the top of the camera sensor (1). \\\n    ",
             "type": [
                 "null",
                 "int"
@@ -32,6 +32,11 @@
                 "int"
             ]
         },
+        "aoibinning": {
+            "default": "1x1",
+            "doc": "Option to bin pixels both horizontally and vertically.  Default is no binning (1x1).",
+            "type": "binning_modes"
+        },
         "electronic_shuttering_mode": {
             "default": "rolling",
             "doc": "'rolling' or 'global'",
@@ -42,11 +47,6 @@
             "doc": "Disable this daemon. The kind entry-point will not attempt to start this daemon.",
             "origin": "is-daemon",
             "type": "boolean"
-        },
-        "hbin": {
-            "default": 1,
-            "doc": "Binning in the horizontal direction.",
-            "type": "int"
         },
         "log_level": {
             "default": "info",
@@ -110,7 +110,7 @@
             ]
         },
         "simple_preamp_gain_control": {
-            "default": "16-bit (low noise and high well capacity)",
+            "default": "16-bit (low noise & high well capacity)",
             "type": "preamp_gain_options"
         },
         "spurious_noise_filter": {
@@ -121,11 +121,6 @@
         "static_blemish_correction": {
             "default": false,
             "type": "boolean"
-        },
-        "vbin": {
-            "default": 1,
-            "doc": "Binning in the vertical direction.",
-            "type": "int"
         }
     },
     "doc": "",
@@ -249,11 +244,11 @@
         },
         "get_pixel_height": {
             "request": [],
-            "response": "null"
+            "response": "int"
         },
         "get_pixel_width": {
             "request": [],
-            "response": "null"
+            "response": "int"
         },
         "get_sensor_info": {
             "doc": "Return a dictionary containing key information about the sensor.",
@@ -264,8 +259,9 @@
             }
         },
         "get_sensor_temperature": {
+            "doc": "Sensor temp (Celsius).",
             "request": [],
-            "response": "null"
+            "response": "float"
         },
         "get_state": {
             "doc": "Get version of the running daemon",
@@ -321,7 +317,7 @@
     "state": {
         "accumulate_count": {
             "default": 1,
-            "doc": "Number of images that should be summed to obtain each image.",
+            "doc": "Number of images that should be summed to obtain each image. Not implemented.",
             "type": "int"
         },
         "exposure_time": {
@@ -333,8 +329,8 @@
     "traits": [
         "is-sensor",
         "has-mapping",
-        "has-measure-trigger",
-        "is-daemon"
+        "is-daemon",
+        "has-measure-trigger"
     ],
     "types": [
         {
@@ -342,7 +338,7 @@
             "symbols": [
                 "12-bit (high well capacity)",
                 "12-bit (low noise)",
-                "16-bit (low noise and high well capacity)"
+                "16-bit (low noise & high well capacity)"
             ],
             "type": "enum"
         },
@@ -351,6 +347,17 @@
             "symbols": [
                 "rolling",
                 "global"
+            ],
+            "type": "enum"
+        },
+        {
+            "name": "binning_modes",
+            "symbols": [
+                "1x1",
+                "2x2",
+                "3x3",
+                "4x4",
+                "8x8"
             ],
             "type": "enum"
         },

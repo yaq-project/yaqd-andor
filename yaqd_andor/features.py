@@ -9,69 +9,69 @@ specs = dict(
     acquisition_start = Spec("AcquisitionStart", "command", "nsz"),
     acquisition_stop = Spec("AcquisitionStop", "command", "nsz"),
     aoi_binning = Spec("AOIBinning", "enumerated", "nz"),
-    aoi_hbin = Spec("AOIHBin", "integer", "asz"),
-    aoi_height = Spec("AOIHeight", "integer", "ansz"),
+    aoi_hbin = Spec("AOIHBin", "int", "asz"),
+    aoi_height = Spec("AOIHeight", "int", "ansz"),
     aoi_layout = Spec("AOILayout", "enumerated", "az"),
-    aoi_left = Spec("AOILeft", "integer", "ansz"),
-    aoi_stride = Spec("AOIStride", "integer", "nz"),
-    aoi_top = Spec("AOITop", "integer", "ansz"),
-    aoi_vbin = Spec("AOIVBin", "integer", "asz"),
-    aoi_width = Spec("AOIWidth", "integer", "ansz"),
-    baseline = Spec("Baseline", "integer", "nz"),
+    aoi_left = Spec("AOILeft", "int", "ansz"),
+    aoi_stride = Spec("AOIStride", "int", "nz"),
+    aoi_top = Spec("AOITop", "int", "ansz"),
+    aoi_vbin = Spec("AOIVBin", "int", "asz"),
+    aoi_width = Spec("AOIWidth", "int", "ansz"),
+    baseline = Spec("Baseline", "int", "nz"),
     bit_depth = Spec("BitDepth", "enumerated", "anz"),
-    buffer_overflow_event = Spec("BufferOverflowEvent", "integer", "nz"),
+    buffer_overflow_event = Spec("BufferOverflowEvent", "int", "nz"),
     bytes_per_pixel = Spec("BytesPerPixel", "float", "nz"),
-    camera_acquiring = Spec("CameraAcquiring", "boolean", "nsz"),
+    camera_acquiring = Spec("CameraAcquiring", "bool", "nsz"),
     camera_dump = Spec("CameraDump", "command", "nz"),
     camera_family = Spec("CameraFamily", "string", "a"),
-    camera_memory = Spec("CameraMemory", "integer", "a"),
+    camera_memory = Spec("CameraMemory", "int", "a"),
     camera_model = Spec("CameraModel", "string", "nsz"),
     camera_name = Spec("CameraName", "string", "anz"),
     cycle_mode = Spec("CycleMode", "enumerated", "nsz"),
     electronic_shuttering_mode = Spec("ElectronicShutteringMode", "enumerated", "nsz"),
-    event_enable = Spec("EventEnable", "boolean", "nz"),
-    events_missed_event = Spec("EventsMissedEvent", "integer", "nz"),
+    event_enable = Spec("EventEnable", "bool", "nz"),
+    events_missed_event = Spec("EventsMissedEvent", "int", "nz"),
     event_selector = Spec("EventSelector", "enumerated", "nz"),
     exposure_time = Spec("ExposureTime", "float", "nsz"),
-    exposure_end_event = Spec("ExposureEndEvent", "integer", "nz"),
-    exposure_start_event = Spec("ExposureStartEvent", "integer", "nz"),
+    exposure_end_event = Spec("ExposureEndEvent", "int", "nz"),
+    exposure_start_event = Spec("ExposureStartEvent", "int", "nz"),
     external_trigger_delay = Spec("ExposureTriggerDelay", "float", "z"),
     fan_speed = Spec("FanSpeed", "enumerated", "ansz"),
-    # fast_aoi_frame_rate_enable = Spec("FastAOIFrameRateEnable", "boolean", "nz"),
+    # fast_aoi_frame_rate_enable = Spec("FastAOIFrameRateEnable", "bool", "nz"),
     firmware_version = Spec("FirmwareVersion", "string", "anz"),
-    frame_count = Spec("FrameCount", "integer", "ansz"),
+    frame_count = Spec("FrameCount", "int", "ansz"),
     frame_rate = Spec("FrameInterval", "float", "ansz"),
-    full_aoi_control = Spec("FullAOIControl", "boolean", "nz"),
-    image_size_bytes = Spec("ImageSizeBytes", "integer", "nsz"),
+    full_aoi_control = Spec("FullAOIControl", "bool", "nz"),
+    image_size_bytes = Spec("ImageSizeBytes", "int", "nsz"),
     interface_type = Spec("InterfaceType", "string", "anz"),
     max_interface_transfer_rate = Spec("MaxInterfaceTransferRate", "float", "nz"),
-    metadata_enable = Spec("MetadataEnable", "boolean", "nz"),
-    metadata_frame = Spec("MetadataFrame", "boolean", "nz"),
-    metadata_timestamp = Spec("MetadataTimestamp", "boolean", "nz"),
-    overlap = Spec("Overlap", "boolean", "anz"),
+    metadata_enable = Spec("MetadataEnable", "bool", "nz"),
+    metadata_frame = Spec("MetadataFrame", "bool", "nz"),
+    metadata_timestamp = Spec("MetadataTimestamp", "bool", "nz"),
+    overlap = Spec("Overlap", "bool", "anz"),
     pixel_correction = Spec("PixelCorrection", "enumerated", "s"),
     pixel_encoding = Spec("PixelEncoding", "enumerated", "nsz"),
     pixel_height = Spec("PixelHeight", "enumerated", "nsz"),
     pixel_readout_rate = Spec("PixelReadoutRate", "enumerated", "ansz"),
     pixel_width = Spec("PixelWidth", "float", "ansz"),
     readout_time = Spec("ReadoutTime", "float", "nz"),
-    sensor_cooling = Spec("SensorCooling", "boolean", "ansz"),
-    sensor_height = Spec("SensorHeight", "integer", "ansz"),
+    sensor_cooling = Spec("SensorCooling", "bool", "ansz"),
+    sensor_height = Spec("SensorHeight", "int", "ansz"),
     sensor_readout_mode = Spec("SensorReadoutMode", "enumerated", "z"),
     sensor_temperature = Spec("SensorTemperature", "float", "ansz"),
-    sensor_width = Spec("SensorWidth", "integer", "ansz"),
+    sensor_width = Spec("SensorWidth", "int", "ansz"),
     serial_number = Spec("SerialNumber", "string", "snz"),
     simple_preamp_gain_control = Spec("SimplePreampGainControl", "enumerated", "nz"),
     software_trigger = Spec("SoftwareTrigger", "command", "nz"),
-    spurious_noise_filter = Spec("SpuriousNoiseFilter", "boolean", "nz"),
-    static_blemish_correction = Spec("StaticBlemishCorrection", "boolean", "nz"),
+    spurious_noise_filter = Spec("SpuriousNoiseFilter", "bool", "nz"),
+    static_blemish_correction = Spec("StaticBlemishCorrection", "bool", "nz"),
     temperature_control = Spec("TemperatureControl", "enumerated", "n"),
     temperature_status = Spec("TemperatureStatus", "enumerated", "anz"),
-    timestamp_clock = Spec("TimestampClock", "integer", "nz"),
-    timestamp_clock_frequency = Spec("TimestampClockFrequency", "integer", "nz"),
+    timestamp_clock = Spec("TimestampClock", "int", "nz"),
+    timestamp_clock_frequency = Spec("TimestampClockFrequency", "int", "nz"),
     timestamp_clock_reset = Spec("TimestampClockReset", "command", "nz"),
     trigger_mode = Spec("TriggerMode", "enumerated", "ansz"),
-    vertically_center_aoi = Spec("VerticallyCentreAOI", "boolean", "nz")
+    vertically_center_aoi = Spec("VerticallyCentreAOI", "bool", "nz")
 )
 
 
@@ -86,16 +86,17 @@ class Feature:
         self.sdk_name = spec.sdk_name
         self.sdk = sdk
         self.hndl = hndl
-        self.method = r"{}" + f"_{type}"
         # feature implemented?
-        self.is_implemented = self.sdk.is_implemented(self.hndl, self.sdk_name)
+        self.is_implemented = bool(self.sdk.is_implemented(self.hndl, self.sdk_name))
         if self.is_implemented:
                 self.get = self._get
         else:
+            # DDK: not implemented = never available?
             raise NotImplementedError(f"feature {self.sdk_name} is not implemented")
         # is read only?
-        self.is_readonly = self.sdk.is_readonly(self.hndl, self.sdk_name)
+        self.is_readonly = bool(self.sdk.is_readonly(self.hndl, self.sdk_name))
         if not self.is_readonly:
+            self._set_call = f"set_{self.type}"
             self.set = self._set
         self._get_call = f"get_{self.type}"
 
@@ -153,8 +154,6 @@ class SDKBool(Feature):
 class SDKCommand(Feature):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        del self._set
-        del self._get
 
     def __call__(self):
         return self.sdk.command(self.hndl, self.sdk_name)
@@ -164,7 +163,8 @@ class SDKEnum(Feature):
     def __init__(self, *args):
         super().__init__(*args)
         self._get_call = self._get_call + "_string"
-        self._set_call = self._set_call + "_string"
+        if not self.is_readonly:
+            self._set_call = self._set_call + "_string"
 
     def options(self):
         """query available feature string options
@@ -175,13 +175,13 @@ class SDKEnum(Feature):
 def obj_from_spec(sdk, hndl, spec):
     if spec.type == "command":
         return SDKCommand(sdk, hndl, spec)
-    elif spec.type == "boolean":
+    elif spec.type == "bool":
         return SDKBool(sdk, hndl, spec)
     elif spec.type == "enumerated":
         return SDKEnum(sdk, hndl, spec)
     elif spec.type == "float":
         return SDKFloat(sdk, hndl, spec)
-    elif spec.type == "integer":
+    elif spec.type == "int":
         return SDKInt(sdk, hndl, spec)
     elif spec.type == "string":
         return SDKString(sdk, hndl, spec)

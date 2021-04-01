@@ -17,12 +17,11 @@
             ]
         },
         "aoi_top": {
-            "default": false,
-            "doc": "Specify top coordinate (units of pixels).  For vertical centering, use 'center'",
+            "default": null,
+            "doc": "Specify top coordinate (units of pixels).",
             "type": [
                 "null",
-                "int",
-                "string"
+                "int"
             ]
         },
         "aoi_width": {
@@ -332,10 +331,10 @@
         }
     },
     "traits": [
-        "has-measure-trigger",
-        "is-daemon",
+        "is-sensor",
         "has-mapping",
-        "is-sensor"
+        "has-measure-trigger",
+        "is-daemon"
     ],
     "types": [
         {

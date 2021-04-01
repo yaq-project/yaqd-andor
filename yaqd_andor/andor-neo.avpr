@@ -1,5 +1,10 @@
 {
     "config": {
+        "aoi_binning": {
+            "default": "1x1",
+            "doc": "Option to bin pixels both horizontally and vertically.  Default is no binning (1x1).",
+            "type": "binning_modes"
+        },
         "aoi_height": {
             "default": null,
             "doc": "Specify the pixel height. \\\n    Can be no larger than sensor_height - (aoi_top - 1). \\\n    Default is the full height of camera. \\\n    ",
@@ -31,11 +36,6 @@
                 "null",
                 "int"
             ]
-        },
-        "aoibinning": {
-            "default": "1x1",
-            "doc": "Option to bin pixels both horizontally and vertically.  Default is no binning (1x1).",
-            "type": "binning_modes"
         },
         "electronic_shuttering_mode": {
             "default": "rolling",
@@ -327,10 +327,10 @@
         }
     },
     "traits": [
-        "is-sensor",
+        "has-measure-trigger",
         "has-mapping",
-        "is-daemon",
-        "has-measure-trigger"
+        "is-sensor",
+        "is-daemon"
     ],
     "types": [
         {

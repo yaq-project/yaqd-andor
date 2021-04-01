@@ -40,7 +40,7 @@ default = false
 type = "boolean"
 default = false
 
-[config.aoibinning]
+[config.aoi_binning]
 type = "binning_modes"
 doc = "Option to bin pixels both horizontally and vertically.  Default is no binning (1x1)."
 default = "1x1"

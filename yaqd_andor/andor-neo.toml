@@ -63,7 +63,7 @@ default = "__null__"
 [config.aoi_top]
 type = ["null", "int", "string"]
 doc = "Specify top coordinate (units of pixels).  For vertical centering, use 'center'"
-default = false
+default = "__null__"
 
 [config.electronic_shuttering_mode]
 type = "shuttering_modes"

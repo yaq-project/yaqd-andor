@@ -20,11 +20,6 @@ symbols = [
 
 [config]
 
-[config.is_virtual]
-type = "boolean"
-doc = "Sets whether simcam features are implemented"
-default = false
-
 # [config.corrections]
 
 # [config.corrections.spurious_noise_filter]

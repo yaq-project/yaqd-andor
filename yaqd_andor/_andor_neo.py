@@ -20,7 +20,6 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         self._channel_names = ["image"]
         self.sdk3 = ATCore() # Initialise SDK3
         # find devices
-        self.is_virtual = self._config["is_virtual"]
         device_count = self.sdk3.get_int(self.sdk3.AT_HNDL_SYSTEM, "DeviceCount")
         if device_count == 0:
             raise ConnectionError("No devices found.")

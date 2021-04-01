@@ -72,7 +72,9 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         self._set_aoi()
 
         # apply channel shape
-        self._channel_shapes = {"image": (self.features["aoi_height"], self.features["aoi_width"])}
+        self._channel_shapes = {
+            "image": (self.features["aoi_height"].get(), self.features["aoi_width"].get())
+        }
 
     def _set_aoi(self):
         aoi_keys = ["aoi_binning", "aoi_width", "aoi_left", "aoi_height", "aoi_top"]

@@ -30,8 +30,8 @@ mypy:
 entry:
   stage: test
   script:
-    - yaqd-neo-triggered --version
-    - yaqd-neo-triggered -h
+    - yaqd-andor-neo --version
+    - yaqd-andor-neo -h
 traits:
   stage: test
   script:

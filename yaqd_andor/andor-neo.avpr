@@ -327,10 +327,10 @@
         }
     },
     "traits": [
-        "has-measure-trigger",
+        "is-daemon",
         "has-mapping",
         "is-sensor",
-        "is-daemon"
+        "has-measure-trigger"
     ],
     "types": [
         {

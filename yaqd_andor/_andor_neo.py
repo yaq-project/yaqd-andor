@@ -49,18 +49,70 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                         f"feature {v.sdk_name} is supposed to be implemented, but is not!"
                     )
                     pass
-                # else:
-                #     self.logger.debug(f"{k}, {self.features[k].is_implemented}, {self.features[k].is_readonly}")
+                else:
+                    self.logger.debug(f"{k}, {self.features[k].is_implemented}, {self.features[k].is_readonly}")
 
+        # only need to poll once
+        self.sensor_info = {}
+        for k in [
+                "sensor_width", "sensor_height", "pixel_height", "pixel_width"
+            ]:
+            try:
+                self.sensor_info[k] = self.features[k].get()
+            except ATCoreException as err:
+                # self.logger.log(err.msg)
+                pass
+        self.logger.debug(self.sensor_info)
+
+        # implement config, state features
         self.features["exposure_time"].set(self._state["exposure_time"])
         self.features["simple_preamp_gain_control"].set(self._config["simple_preamp_gain_control"])
 
-        # test: poll default aoi params
+        # aoi currently in config, so only need to run on startup
+        self._set_aoi()
+
+        # apply channel shape
+        self._channel_shapes = {"image": (self.features["aoi_height"], self.features["aoi_width"])}
+
+    def _set_aoi(self):
+        aoi_keys = ["aoi_binning", "aoi_width", "aoi_left", "aoi_height", "aoi_top"]
+        binning, width, left, height, top = [
+            self._config[k] for k in aoi_keys
+        ]
+        binning = int(binning[0])  # equal xy binning, so only need 1 index
+
+        # check if aoi is within sensor limits
+        max_width = self.features["sensor_width"].get()
+        max_height = self.features["sensor_height"].get()
+
+        # handle defaults (maximum sizes)
+        if left is None:
+            left = 1
+        if top is None:
+            top = 1
+        if width is None:
+            width = (max_width - left + 1) // binning
+        if height is None:
+            height = (max_height - top + 1) // binning
+
+        self.logger.debug(f"{max_width}, {max_height}, {binning}, {width}, {height}, {top}")
+        w_extent = width * binning + (left-1)
+        h_extent = height * binning  + (top-1)
+        if w_extent > max_width:
+            raise ValueError(f"height extends over {w_extent} pixels, max is {max_width}")
+        if h_extent > max_height:
+            raise ValueError(f"height extends over {h_extent} pixels, max is {max_height}")
+
+        self.features["aoi_binning"].set(f"{binning}x{binning}")
+        self.features["aoi_width"].set(width)
+        self.features["aoi_left"].set(left)
+        self.features["aoi_height"].set(height)
+        self.features["aoi_top"].set(top)
+
+        # todo: apply aoi to mapping
+
         for k in ["aoi_height", "aoi_width", "aoi_top", "aoi_left", "aoi_binning"]:
             self.logger.debug(f"{k}: {self.features[k].get()}")
-        height = self.sdk3.get_int(self.hndl, "AOIHeight")
-        width = self.sdk3.get_int(self.hndl, "AOIWidth")
-        self._channel_shapes = {"image": (height, width)}
 
     async def _measure(self):
         imageSizeBytes = self.sdk3.get_int(self.hndl, "ImageSizeBytes")
@@ -97,19 +149,10 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         return {"image": arrayinterface}
 
     def get_sensor_info(self):
-        """
-        todo
-        """
-        out = dict(
-            height = self.sdk3.get_int(self.hndl, "SensorHeight"),
-            width = self.sdk3.get_int(self.hndl, "SensorWidth")
-        )
-        return out
-
+        return self.sensor_info
 
     def list_features(self):
         pass
-
 
     def close(self):
         self.sdk3.close(self.hndl)

@@ -261,7 +261,7 @@
             "response": "null"
         }
     },
-    "protocol": "neo-triggered",
+    "protocol": "andor-neo",
     "requires": [],
     "state": {
         "accumulate_count": {

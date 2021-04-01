@@ -30,7 +30,7 @@ Issues = "https://gitlab.com/yaq/yaqd-andor/issues"
 dev = ["black", "pre-commit"]
 
 [tool.flit.scripts]
-yaqd-neo-triggered = "yaqd_andor._neo_triggered:NeoTriggered.main"
+yaqd-andor-neo = "yaqd_andor._andor_neo:AndorNeo.main"
 
 
 [tool.black]

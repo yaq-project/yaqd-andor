@@ -1,4 +1,4 @@
-__all__ = ["NeoTriggered"]
+__all__ = ["AndorNeo"]
 
 import asyncio
 import numpy as np
@@ -12,8 +12,8 @@ ATCore = atcore.ATCore
 ATCoreException = atcore.ATCoreException
 
 
-class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
-    _kind = "neo-triggered"
+class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
+    _kind = "andor-neo"
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
@@ -48,11 +48,6 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         height = self.sdk3.get_int(self.hndl, "SensorHeight")
         width = self.sdk3.get_int(self.hndl, "SensorWidth")
         self._channel_shapes = {"image": (height, width)}
-
-        print(self.sdk3.get_enumerated_string(
-            self.hndl, "SimplePreAmpGainControl"
-        ))
-
 
     async def _measure(self):
         imageSizeBytes = self.sdk3.get_int(self.hndl, "ImageSizeBytes")

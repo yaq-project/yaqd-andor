@@ -11,7 +11,7 @@ Daemons for [Andor](https://andor.oxinst.com/?gclid=CjwKCAiA4rGCBhAQEiwAelVtiwSR
 
 This package contains the following daemon(s):
 
-- https://yaq.fyi/daemons/neo-triggered
+- https://yaq.fyi/daemons/andor-neo
 
 To run this daemon, you must also have access to the ANDOR sdk3 driver files:
 

@@ -171,3 +171,20 @@ class SDKEnum(Feature):
         """
         return self.sdk.get_enumerated_string_options(self.hndl, self.sdk_name)
 
+
+def obj_from_spec(sdk, hndl, spec):
+    if spec.type == "command":
+        return SDKCommand(sdk, hndl, spec)
+    elif spec.type == "boolean":
+        return SDKBool(sdk, hndl, spec)
+    elif spec.type == "enumerated":
+        return SDKEnum(sdk, hndl, spec)
+    elif spec.type == "float":
+        return SDKFloat(sdk, hndl, spec)
+    elif spec.type == "integer":
+        return SDKInt(sdk, hndl, spec)
+    elif spec.type == "string":
+        return SDKString(sdk, hndl, spec)
+    else:
+        print(f"failed to find valid type for {spec}.")
+        pass

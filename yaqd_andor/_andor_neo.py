@@ -37,7 +37,10 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                 r"device with serial number {0} not found".format(self._config["serial"])
             )
 
-        self.features = [k for k,v in features.specs.items() if "n" in v.availability]
+        self.features = {
+            k:features.obj_from_spec(self.sdk3, self.hndl, v) \
+            for k,v in features.specs.items() if "n" in v.availability
+        }
         for v in self.features:
             self.logger.debug(v)
 

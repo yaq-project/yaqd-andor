@@ -8,9 +8,6 @@ from typing import Dict, Any, List
 from . import atcore 
 from . import features
 
-import os
-os.chdir(os.path.dirname(__file__))
-
 ATCore = atcore.ATCore
 ATCoreException = atcore.ATCoreException
 
@@ -41,36 +38,13 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                 r"device with serial number {0} not found".format(self._config["serial"])
             )
 
-        if not self.is_virtual:
-            self.sdk3.set_enumerated_string(
-                self.hndl,
-                "SimplePreAmpGainControl",
-                "16-bit (low noise & high well capacity)"
-            )
-            # self.sdk3.set_bool(self.hndl, "MetadataEnable", True)
-
-        if False:
-            # set trigger mode
-            self.sdk3.set_enumerated_string(
-                self.hndl, "TriggerMode", "Advanced" if self._config["is_virtual"] else "Internal"
-            )
-            # set exposure time
-            print("exposure time is implemented:", bool(self.sdk3.is_implemented(self.hndl, "ExposureTime")))
-            print("exposure time is read only:", bool(self.sdk3.is_readonly(self.hndl, "ExposureTime")))
-            import time
-            while True:
-                if self.sdk3.is_writable(self.hndl, "ExposureTime"):
-                    print("writable!")
-                    break
-                else:
-                    print("not writable")
-                    time.sleep(1)
-            print("exposure time is writable:", bool(self.sdk3.is_writable(self.hndl, "ExposureTime")))
         self.sdk3.set_float(self.hndl, "ExposureTime", self._state["exposure_time"])
-        # set cycle mode to fixed
-        # self.sdk3.set_enumerated_string(
-        #     self.hndl, "CycleMode", "Fixed"
-        # )
+        self.sdk3.set_enumerated_string(
+            self.hndl,
+            "SimplePreAmpGainControl",
+            "16-bit (low noise & high well capacity)"
+        )
+
         height = self.sdk3.get_int(self.hndl, "SensorHeight")
         width = self.sdk3.get_int(self.hndl, "SensorWidth")
         self._channel_shapes = {"image": (height, width)}
@@ -81,18 +55,17 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
 
 
     async def _measure(self):
-        # queue buffer
-        # todo: queue buffer for n frames
         imageSizeBytes = self.sdk3.get_int(self.hndl, "ImageSizeBytes")
-        # acquire frame
         buf = np.empty((imageSizeBytes,), dtype='B')
         try:
             self.sdk3.queue_buffer(self.hndl, buf.ctypes.data, imageSizeBytes)
+            # acquire frame
             self.sdk3.command(self.hndl, "AcquisitionStart")
             self.logger.debug("Waiting on buffer")
-            (returnedBuf, returnedSize) = self.sdk3.wait_buffer(self.hndl)  # hangs
+            (returnedBuf, returnedSize) = self.sdk3.wait_buffer(self.hndl)
             self.logger.debug("Done waiting on buffer")
             self.logger.debug(f"{imageSizeBytes}, {returnedSize}")
+            self.sdk3.command(self.hndl,"AcquisitionStop")
         except ATCoreException as err:
             self.logger.error(f"SDK3 Error {err}")
 
@@ -108,43 +81,15 @@ class NeoTriggered(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         stride = self.sdk3.get_int(self.hndl, "AOIStride")
         pixels = np.array(ArrayInterface(buf.data, self._channel_shapes["image"], (stride, 2)))
         self.logger.debug(f"{pixels.size}, {np.prod(self._channel_shapes['image'])}")
-        self.sdk3.command(self.hndl,"AcquisitionStop")
-        self.sdk3.flush(self.hndl)
         pixels = np.ascontiguousarray(pixels)
         arrayinterface = pixels.__array_interface__
         arrayinterface["data"] = pixels.tobytes()
+        self.sdk3.flush(self.hndl)
 
         return {"image": arrayinterface}
 
     def get_sensor_info(self):
         pass
 
-    def interrupt(self):
-        """stop measure before exposure time is reached.
-        """
-        pass
-
     def close(self):
         self.sdk3.close(self.hndl)
-
-    def _get_feature(self, feature):
-        call = type_to_call["int"].format("get")
-        if self.sdk3.is_implemented(self.hndl, call):
-            if self.sdk3.is_readable(self.hndl, call):
-                return self.sdk3.__getattribute__(call)(self.hndl, feature.name)
-            else:
-                raise TypeError(f"call {call} is not readable")
-        else:
-            raise ValueError(f"call {call} is not implemented")
-
-    def _set_feature(self, feature):
-        call = type_to_call["int"].format("set")
-        if self.sdk3.is_readonly(self.hndl, call):
-            return TypeError(f"Cannot write.  Feature {call} is read only")
-        if self.sdk3.is_implemented(self.hndl, call):
-            while not self.sdk3.is_writable(self.hndl, call):
-                return self.sdk3.__getattribute__(call)(self.hndl, feature.name, feature.value)
-        else:
-            raise ValueError(f"call {call} is not implemented")
-
-

@@ -64,7 +64,7 @@ specs = dict(
     simple_preamp_gain_control = Spec("SimplePreampGainControl", "enumerated", "nz"),
     software_trigger = Spec("SoftwareTrigger", "command", "nz"),
     spurious_noise_filter = Spec("SpuriousNoiseFilter", "boolean", "nz"),
-    static_blemish_correction = Spec("StaticBlemishCorrection", "boolean", "nz")
+    static_blemish_correction = Spec("StaticBlemishCorrection", "boolean", "nz"),
     temperature_control = Spec("TemperatureControl", "enumerated", "n"),
     temperature_status = Spec("TemperatureStatus", "enumerated", "anz"),
     timestamp_clock = Spec("TimestampClock", "integer", "nz"),
@@ -170,3 +170,4 @@ class SDKEnum(Feature):
         """query available feature string options
         """
         return self.sdk.get_enumerated_string_options(self.hndl, self.sdk_name)
+

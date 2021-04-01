@@ -1,99 +1,78 @@
 from collections import namedtuple
 
-FeatureSpec = namedtuple("Feature", ["sdk_name", "type", "availability"])
+Spec = namedtuple("Feature", ["sdk_name", "type", "availability"])
 
 # adapted from sdk3 manual
 # note some table entries were omitted (focused on neo, simcam features)
 # a = apogee, n = neo, s = simcam, z = zyla
-feature_specs = dict(
-    acquisition_start = FeatureSpec("AcquisitionStart", "command", "nsz"),
-    acquisition_stop = FeatureSpec("AcquisitionStop", "command", "nsz"),
-    aoi_binning = FeatureSpec("AOIBinning", "enumerated", "nz"),
-    aoi_hbin = FeatureSpec("AOIHBin", "integer", "asz"),
-    aoi_height = FeatureSpec("AOIHeight", "integer", "ansz"),
-    aoi_layout = FeatureSpec("AOILayout", "enumerated", "az"),
-    aoi_left = FeatureSpec("AOILeft", "integer", "ansz"),
-    aoi_stride = FeatureSpec("AOIStride", "integer", "nz"),
-    aoi_top = FeatureSpec("AOITop", "integer", "ansz"),
-    aoi_vbin = FeatureSpec("AOIVBin", "integer", "asz"),
-    aoi_width = FeatureSpec("AOIWidth", "integer", "ansz"),
-    baseline = FeatureSpec("Baseline", "integer", "nz"),
-    bit_depth = FeatureSpec("BitDepth", "enumerated", "anz"),
-    buffer_overflow_event = FeatureSpec("BufferOverflowEvent", "integer", "nz"),
-    bytes_per_pixel = FeatureSpec("BytesPerPixel", "float", "nz"),
-    camera_acquiring = FeatureSpec("CameraAcquiring", "boolean", "nsz"),
-    camera_dump = FeatureSpec("CameraDump", "command", "nz"),
-    camera_family = FeatureSpec("CameraFamily", "string", "a"),
-    camera_memory = FeatureSpec("CameraMemory", "integer", "a"),
-    camera_model = FeatureSpec("CameraModel", "string", "nsz"),
-    camera_name = FeatureSpec("CameraName", "string", "anz"),
-    cycle_mode = FeatureSpec("CycleMode", "enumerated", "nsz"),
-    electronic_shuttering_mode = FeatureSpec("ElectronicShutteringMode", "enumerated", "nsz"),
-    event_enable = FeatureSpec("EventEnable", "boolean", "nz"),
-    events_missed_event = FeatureSpec("EventsMissedEvent", "integer", "nz"),
-    event_selector = FeatureSpec("EventSelector", "enumerated", "nz"),
-    exposure_time = FeatureSpec("ExposureTime", "float", "nsz"),
-    exposure_end_event = FeatureSpec("ExposureEndEvent", "integer", "nz"),
-    exposure_start_event = FeatureSpec("ExposureStartEvent", "integer", "nz"),
-    external_trigger_delay = FeatureSpec("ExposureTriggerDelay", "float", "z"),
-    fan_speed = FeatureSpec("FanSpeed", "enumerated", "ansz"),
-    # fast_aoi_frame_rate_enable = FeatureSpec("FastAOIFrameRateEnable", "boolean", "nz"),
-    firmware_version = FeatureSpec("FirmwareVersion", "string", "anz"),
-    frame_count = FeatureSpec("FrameCount", "integer", "ansz"),
-    frame_rate = FeatureSpec("FrameInterval", "float", "ansz"),
-    full_aoi_control = FeatureSpec("FullAOIControl", "boolean", "nz"),
-    image_size_bytes = FeatureSpec("ImageSizeBytes", "integer", "nsz"),
-    interface_type = FeatureSpec("InterfaceType", "string", "anz"),
-    max_interface_transfer_rate = FeatureSpec("MaxInterfaceTransferRate", "float", "nz"),
-    metadata_enable = FeatureSpec("MetadataEnable", "boolean", "nz"),
-    metadata_frame = FeatureSpec("MetadataFrame", "boolean", "nz"),
-    metadata_timestamp = FeatureSpec("MetadataTimestamp", "boolean", "nz"),
-    overlap = FeatureSpec("Overlap", "boolean", "anz"),
-    pixel_correction = FeatureSpec("PixelCorrection", "enumerated", "s"),
-    pixel_encoding = FeatureSpec("PixelEncoding", "enumerated", "nsz"),
-    pixel_height = FeatureSpec("PixelHeight", "enumerated", "nsz"),
-    pixel_readout_rate = FeatureSpec("PixelReadoutRate", "enumerated", "ansz"),
-    pixel_width = FeatureSpec("PixelWidth", "float", "ansz"),
-    readout_time = FeatureSpec("ReadoutTime", "float", "nz"),
-    sensor_cooling = FeatureSpec("SensorCooling", "boolean", "ansz"),
-    sensor_height = FeatureSpec("SensorHeight", "integer", "ansz"),
-    sensor_readout_mode = FeatureSpec("SensorReadoutMode", "enumerated", "z"),
-    sensor_temperature = FeatureSpec("SensorTemperature", "float", "ansz"),
-    sensor_width = FeatureSpec("SensorWidth", "integer", "ansz"),
-    serial_number = FeatureSpec("SerialNumber", "string", "snz"),
-    simple_preamp_gain_control = FeatureSpec("SimplePreampGainControl", "enumerated", "nz"),
-    software_trigger = FeatureSpec("SoftwareTrigger", "command", "nz"),
-    spurious_noise_filter = FeatureSpec("SpuriousNoiseFilter", "boolean", "nz"),
-    temperature_control = FeatureSpec("TemperatureControl", "enumerated", "n"),
-    temperature_status = FeatureSpec("TemperatureStatus", "enumerated", "anz"),
-    timestamp_clock = FeatureSpec("TimestampClock", "integer", "nz"),
-    timestamp_clock_frequency = FeatureSpec("TimestampClockFrequency", "integer", "nz"),
-    timestamp_clock_reset = FeatureSpec("TimestampClockReset", "command", "nz"),
-    trigger_mode = FeatureSpec("TriggerMode", "enumerated", "ansz"),
-    vertically_center_aoi = FeatureSpec("VerticallyCentreAOI", "boolean", "nz")
+specs = dict(
+    acquisition_start = Spec("AcquisitionStart", "command", "nsz"),
+    acquisition_stop = Spec("AcquisitionStop", "command", "nsz"),
+    aoi_binning = Spec("AOIBinning", "enumerated", "nz"),
+    aoi_hbin = Spec("AOIHBin", "integer", "asz"),
+    aoi_height = Spec("AOIHeight", "integer", "ansz"),
+    aoi_layout = Spec("AOILayout", "enumerated", "az"),
+    aoi_left = Spec("AOILeft", "integer", "ansz"),
+    aoi_stride = Spec("AOIStride", "integer", "nz"),
+    aoi_top = Spec("AOITop", "integer", "ansz"),
+    aoi_vbin = Spec("AOIVBin", "integer", "asz"),
+    aoi_width = Spec("AOIWidth", "integer", "ansz"),
+    baseline = Spec("Baseline", "integer", "nz"),
+    bit_depth = Spec("BitDepth", "enumerated", "anz"),
+    buffer_overflow_event = Spec("BufferOverflowEvent", "integer", "nz"),
+    bytes_per_pixel = Spec("BytesPerPixel", "float", "nz"),
+    camera_acquiring = Spec("CameraAcquiring", "boolean", "nsz"),
+    camera_dump = Spec("CameraDump", "command", "nz"),
+    camera_family = Spec("CameraFamily", "string", "a"),
+    camera_memory = Spec("CameraMemory", "integer", "a"),
+    camera_model = Spec("CameraModel", "string", "nsz"),
+    camera_name = Spec("CameraName", "string", "anz"),
+    cycle_mode = Spec("CycleMode", "enumerated", "nsz"),
+    electronic_shuttering_mode = Spec("ElectronicShutteringMode", "enumerated", "nsz"),
+    event_enable = Spec("EventEnable", "boolean", "nz"),
+    events_missed_event = Spec("EventsMissedEvent", "integer", "nz"),
+    event_selector = Spec("EventSelector", "enumerated", "nz"),
+    exposure_time = Spec("ExposureTime", "float", "nsz"),
+    exposure_end_event = Spec("ExposureEndEvent", "integer", "nz"),
+    exposure_start_event = Spec("ExposureStartEvent", "integer", "nz"),
+    external_trigger_delay = Spec("ExposureTriggerDelay", "float", "z"),
+    fan_speed = Spec("FanSpeed", "enumerated", "ansz"),
+    # fast_aoi_frame_rate_enable = Spec("FastAOIFrameRateEnable", "boolean", "nz"),
+    firmware_version = Spec("FirmwareVersion", "string", "anz"),
+    frame_count = Spec("FrameCount", "integer", "ansz"),
+    frame_rate = Spec("FrameInterval", "float", "ansz"),
+    full_aoi_control = Spec("FullAOIControl", "boolean", "nz"),
+    image_size_bytes = Spec("ImageSizeBytes", "integer", "nsz"),
+    interface_type = Spec("InterfaceType", "string", "anz"),
+    max_interface_transfer_rate = Spec("MaxInterfaceTransferRate", "float", "nz"),
+    metadata_enable = Spec("MetadataEnable", "boolean", "nz"),
+    metadata_frame = Spec("MetadataFrame", "boolean", "nz"),
+    metadata_timestamp = Spec("MetadataTimestamp", "boolean", "nz"),
+    overlap = Spec("Overlap", "boolean", "anz"),
+    pixel_correction = Spec("PixelCorrection", "enumerated", "s"),
+    pixel_encoding = Spec("PixelEncoding", "enumerated", "nsz"),
+    pixel_height = Spec("PixelHeight", "enumerated", "nsz"),
+    pixel_readout_rate = Spec("PixelReadoutRate", "enumerated", "ansz"),
+    pixel_width = Spec("PixelWidth", "float", "ansz"),
+    readout_time = Spec("ReadoutTime", "float", "nz"),
+    sensor_cooling = Spec("SensorCooling", "boolean", "ansz"),
+    sensor_height = Spec("SensorHeight", "integer", "ansz"),
+    sensor_readout_mode = Spec("SensorReadoutMode", "enumerated", "z"),
+    sensor_temperature = Spec("SensorTemperature", "float", "ansz"),
+    sensor_width = Spec("SensorWidth", "integer", "ansz"),
+    serial_number = Spec("SerialNumber", "string", "snz"),
+    simple_preamp_gain_control = Spec("SimplePreampGainControl", "enumerated", "nz"),
+    software_trigger = Spec("SoftwareTrigger", "command", "nz"),
+    spurious_noise_filter = Spec("SpuriousNoiseFilter", "boolean", "nz"),
+    static_blemish_correction = Spec("StaticBlemishCorrection", "boolean", "nz")
+    temperature_control = Spec("TemperatureControl", "enumerated", "n"),
+    temperature_status = Spec("TemperatureStatus", "enumerated", "anz"),
+    timestamp_clock = Spec("TimestampClock", "integer", "nz"),
+    timestamp_clock_frequency = Spec("TimestampClockFrequency", "integer", "nz"),
+    timestamp_clock_reset = Spec("TimestampClockReset", "command", "nz"),
+    trigger_mode = Spec("TriggerMode", "enumerated", "ansz"),
+    vertically_center_aoi = Spec("VerticallyCentreAOI", "boolean", "nz")
 )
-
-shared_features = [k for k,v in feature_specs.items() if \
-    ("n" in v.availability) and ("s" in v.availability) and ("z" in v.availability)]
-simcam_features = [k for k,v in feature_specs.items() if "s" in v.availability]
-neo_features = [k for k,v in feature_specs.items() if "n" in v.availability]
-
-if False:
-    def generate_getter(self, call:str):
-        def getter(self):
-            if self.sdk.is_readable(self.hndl, self.sdk_name):
-                return self.sdk.__getattribute__(call)(self.hndl, self.sdk_name)
-            else:
-                raise ValueError(f"call {call} is not currently readable")
-        return getter
-
-    def generate_setter(self, call:str):
-        def setter(self, value):
-            if self.sdk.is_writable(self.hndl, self.sdk_name):
-                return self.sdk.__getattribute__(call)(self.hndl, self.sdk_name, value)
-            else:
-                raise ValueError(f"call {call} is not currently writable")
-        return setter
 
 
 class Feature:
@@ -191,4 +170,3 @@ class SDKEnum(Feature):
         """query available feature string options
         """
         return self.sdk.get_enumerated_string_options(self.hndl, self.sdk_name)
-

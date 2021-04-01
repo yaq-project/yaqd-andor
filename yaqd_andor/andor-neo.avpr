@@ -1,10 +1,53 @@
 {
     "config": {
+        "aoi_height": {
+            "default": null,
+            "doc": "",
+            "type": [
+                "null",
+                "int"
+            ]
+        },
+        "aoi_left": {
+            "default": null,
+            "doc": "Specify left most coordinate.",
+            "type": [
+                "null",
+                "int"
+            ]
+        },
+        "aoi_top": {
+            "default": false,
+            "doc": "Specify top coordinate (units of pixels).  For vertical centering, use 'center'",
+            "type": [
+                "null",
+                "int",
+                "string"
+            ]
+        },
+        "aoi_width": {
+            "default": null,
+            "doc": "",
+            "type": [
+                "null",
+                "int"
+            ]
+        },
+        "electronic_shuttering_mode": {
+            "default": "rolling",
+            "doc": "'rolling' or 'global'",
+            "type": "shuttering_modes"
+        },
         "enable": {
             "default": true,
             "doc": "Disable this daemon. The kind entry-point will not attempt to start this daemon.",
             "origin": "is-daemon",
             "type": "boolean"
+        },
+        "hbin": {
+            "default": 1,
+            "doc": "Binning in the horizontal direction.",
+            "type": "int"
         },
         "log_level": {
             "default": "info",
@@ -66,6 +109,24 @@
                 "null",
                 "string"
             ]
+        },
+        "simple_preamp_gain_control": {
+            "default": "16-bit (low noise and high well capacity)",
+            "type": "preamp_gain_options"
+        },
+        "spurious_noise_filter": {
+            "default": false,
+            "doc": "Corrects high value pixels using mean of surrounding pixels.",
+            "type": "boolean"
+        },
+        "static_blemish_correction": {
+            "default": false,
+            "type": "boolean"
+        },
+        "vbin": {
+            "default": 1,
+            "doc": "Binning in the vertical direction.",
+            "type": "int"
         }
     },
     "doc": "",
@@ -272,9 +333,9 @@
     },
     "traits": [
         "has-measure-trigger",
+        "is-daemon",
         "has-mapping",
-        "is-sensor",
-        "is-daemon"
+        "is-sensor"
     ],
     "types": [
         {
@@ -283,6 +344,14 @@
                 "12-bit (high well capacity)",
                 "12-bit (low noise)",
                 "16-bit (low noise and high well capacity)"
+            ],
+            "type": "enum"
+        },
+        {
+            "name": "shuttering_modes",
+            "symbols": [
+                "rolling",
+                "global"
             ],
             "type": "enum"
         },

@@ -37,6 +37,10 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                 r"device with serial number {0} not found".format(self._config["serial"])
             )
 
+        self.features = [k for k,v in features.specs.items() if "n" in v.availability]
+        for v in self.features:
+            self.logger.debug(v)
+
         self.sdk3.set_float(self.hndl, "ExposureTime", self._state["exposure_time"])
         self.sdk3.set_enumerated_string(
             self.hndl,
@@ -44,8 +48,8 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             "16-bit (low noise & high well capacity)"
         )
 
-        height = self.sdk3.get_int(self.hndl, "SensorHeight")
-        width = self.sdk3.get_int(self.hndl, "SensorWidth")
+        height = self.sdk3.get_int(self.hndl, "AOIHeight")
+        width = self.sdk3.get_int(self.hndl, "AOIWidth")
         self._channel_shapes = {"image": (height, width)}
 
     async def _measure(self):
@@ -83,7 +87,19 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         return {"image": arrayinterface}
 
     def get_sensor_info(self):
+        """
+        todo
+        """
+        out = dict(
+            height = self.sdk3.get_int(self.hndl, "SensorHeight"),
+            width = self.sdk3.get_int(self.hndl, "SensorWidth")
+        )
+        return out
+
+
+    def list_features(self):
         pass
+
 
     def close(self):
         self.sdk3.close(self.hndl)

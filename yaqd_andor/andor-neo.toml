@@ -18,64 +18,61 @@ symbols = [
     "16-bit (low noise and high well capacity)"
 ]
 
+[[types]]
+type = "enum"
+name = "shuttering_modes"
+symbols = ["rolling", "global"]
+
+
 [config]
 
-# [config.corrections]
+[config.spurious_noise_filter]
+type = "boolean"
+doc = "Corrects high value pixels using mean of surrounding pixels."
+default = false
 
-# [config.corrections.spurious_noise_filter]
-# type = "bool"
-# doc = "Corrects high value pixels using mean of surrounding pixels."
-# default = false
+[config.static_blemish_correction]
+type = "boolean"
+default = false
 
-# [config.corrections.static_blemish_correction]
-# type = "bool"
-# default = false
+[config.hbin]
+type = "int"
+doc = "Binning in the horizontal direction."
+default = 1
 
-# [config.binning]
+[config.vbin]
+type = "int"
+doc = "Binning in the vertical direction."
+default = 1
 
-# [config.binning.bin]
+[config.aoi_width]
+type = ["null", "int"]
+doc = ""
+default = "__null__"
 
-# [config.binning.vstack]
+[config.aoi_left]
+type = ["null", "int"]
+doc = "Specify left most coordinate."
+default = "__null__"
 
-# [config.binning.hstack]
+[config.aoi_height]
+type = ["null", "int"]
+doc = ""
+default = "__null__"
 
-# [config.aoi]
+[config.aoi_top]
+type = ["null", "int", "string"]
+doc = "Specify top coordinate (units of pixels).  For vertical centering, use 'center'"
+default = false
 
-# [config.aoi.width]
-# type = ["null", "int"]
-# doc = ""
-# default = "__null__"
+[config.electronic_shuttering_mode]
+type = "shuttering_modes"
+doc = "'rolling' or 'global'"
+default = "rolling"
 
-# [config.aoi.left]
-# type = ["null", "int"]
-# doc = "Specify left most coordinate."
-# default = "__null__"
-
-# [config.aoi.height]
-# type = ["null", "int"]
-# doc = ""
-# default = "__null__"
-
-# [config.aoi.top]
-# type = ["null", "int", "string"]
-# doc = "Specify top coordinate.  For vertical centering, use 'center'"
-# default = false
-
-# [config.aoi.vertically_center]
-# type = "bool"
-# doc = ""
-# default = false
-
-# [config.electronic_shuttering_mode]
-# type = "str"
-# doc = "'rolling' or 'global'"
-
-# [config.simple_preamp_gain_control]
-# type = "premp_gain_options"
-
-# [config.transmit_frames]
-# type = "bool"
-# doc = ""
+[config.simple_preamp_gain_control]
+type = "preamp_gain_options"
+default = "16-bit (low noise and high well capacity)"
 
 [state]
 

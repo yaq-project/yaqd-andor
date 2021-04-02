@@ -110,5 +110,5 @@ doc = "Sensor temp (Celsius)."
 response = "float"
 
 [messages.get_sensor_info]
-doc = "Return a dictionary containing key information about the sensor."
-response = {'type'= 'map', 'values'= 'string'}
+doc = "Return a dictionary containing information about the sensor."
+response = {'type'= 'map', 'values'= ["int", "float"]}

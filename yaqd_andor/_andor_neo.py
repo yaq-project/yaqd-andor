@@ -155,8 +155,8 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
     def get_sensor_info(self):
         return self.sensor_info
 
-    def list_features(self):
-        pass
+    def get_feature_names(self):
+        return [v.sdk_name for v in self.features.values()]
 
     def close(self):
         self.sdk3.close(self.hndl)

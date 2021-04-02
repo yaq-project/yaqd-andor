@@ -251,11 +251,14 @@
             "response": "int"
         },
         "get_sensor_info": {
-            "doc": "Return a dictionary containing key information about the sensor.",
+            "doc": "Return a dictionary containing information about the sensor.",
             "request": [],
             "response": {
                 "type": "map",
-                "values": "string"
+                "values": [
+                    "int",
+                    "float"
+                ]
             }
         },
         "get_sensor_temperature": {
@@ -327,8 +330,8 @@
         }
     },
     "traits": [
-        "is-daemon",
         "has-mapping",
+        "is-daemon",
         "is-sensor",
         "has-measure-trigger"
     ],

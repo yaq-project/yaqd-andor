@@ -68,16 +68,13 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         # implement config, state features
         self.features["exposure_time"].set(self._state["exposure_time"])
         self.features["simple_preamp_gain_control"].set(self._config["simple_preamp_gain_control"])
-
-        self._set_temperature()
-
         # aoi currently in config, so only need to run on startup
         self._set_aoi()
-
         # apply channel shape
         self._channel_shapes = {
             "image": (self.features["aoi_height"].get(), self.features["aoi_width"].get())
         }
+        self._set_temperature()
 
     def _set_aoi(self):
         aoi_keys = ["aoi_binning", "aoi_width", "aoi_left", "aoi_height", "aoi_top"]

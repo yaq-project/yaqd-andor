@@ -1,0 +1,111 @@
+protocol = "andor-simcam"
+doc = ""
+traits = ["has-mapping", "has-measure-trigger", "is-sensor", "is-daemon"]
+
+[links]
+source = "https://gitlab.com/yaq/yaqd-andor"
+bugtracker = "https://gitlab.com/yaq/yaqd-andor/-/issues"
+
+[installation]
+PyPI = "https://pypi.org/project/yaqd-andor"
+
+[[types]]
+type = "enum"
+name = "preamp_gain_options"
+symbols = [
+    "12-bit (high well capacity)",
+    "12-bit (low noise)",
+    "16-bit (low noise & high well capacity)"
+]
+
+[[types]]
+type = "enum"
+name = "shuttering_modes"
+symbols = ["rolling", "global"]
+
+[[types]]
+type = "enum"
+name = "binning_modes"
+symbols = ["1x1", "2x2", "3x3", "4x4", "8x8"]
+
+
+[config]
+
+[config.aoi_binning]
+type = "binning_modes"
+doc = "Option to bin pixels both horizontally and vertically.  Default is no binning (1x1)."
+default = "1x1"
+
+[config.aoi_width]
+type = ["null", "int"]
+doc = """Specify width of AOI, in units of super-pixels. \\
+    Defaults to the full width of sensor.
+    """
+default = "__null__"
+
+[config.aoi_left]
+type = ["null", "int"]
+doc = """Specify left most coordinate of AOI. \\
+    Defaults to the full left of the sensor (1). \\
+    Units of pixels. \\
+    """
+default = "__null__"
+
+[config.aoi_height]
+type = ["null", "int"]
+doc = """Specify the pixel height. \\
+    Can be no larger than sensor_height - (aoi_top - 1). \\
+    Default is the full height of camera. \\
+    Units of super-pixels. \\
+    """
+default = "__null__"
+
+[config.aoi_top]
+type = ["null", "int"]
+doc = """Specify top coordinate (units of pixels). \\
+    Defaults to the top of the camera sensor (1). \\
+    Units of pixels. \\
+    """
+default = "__null__"
+
+[config.electronic_shuttering_mode]
+type = "shuttering_modes"
+doc = "'rolling' or 'global'"
+default = "rolling"
+
+[config.simple_preamp_gain_control]
+type = "preamp_gain_options"
+default = "16-bit (low noise & high well capacity)"
+
+
+[state]
+
+[state.accumulate_count]
+type = "int"
+doc = "Number of images that should be summed to obtain each image. Not implemented."
+default = 1
+
+[state.exposure_time]
+type = "float"
+doc = "Requested Exposure time, in seconds."
+default = 1
+
+
+[messages]
+
+[messages.get_heatsink_temperature]
+response = "float"
+
+[messages.get_pixel_height]
+response = "int"
+
+[messages.get_pixel_width]
+response = "int"
+
+[messages.get_sensor_temperature]
+doc = "Sensor temp (Celsius)."
+response = "float"
+
+[messages.get_sensor_info]
+doc = "Return a dictionary containing key information about the sensor."
+response = {'type'= 'map', 'values'= 'string'}

@@ -119,7 +119,7 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         for k in ["aoi_height", "aoi_width", "aoi_top", "aoi_left", "aoi_binning"]:
             self.logger.debug(f"{k}: {self.features[k].get()}")
 
-    def _set_temperature(self):
+    async def _set_temperature(self):
         # possible_temps = self.features["temperature_control"].options()
         sensor_cooling = self._config["sensor_cooling"]
         self.features["sensor_cooling"].set(sensor_cooling)
@@ -134,16 +134,18 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         status = self.features["temperature_status"].get()
 
     def _check_temp_stabilized(self):
-        status = self.features["temperature_status"].get()
-        while status in ["Cooling", "Not Stabilised"]:
-            set_temp = self.features["temperature_control"].get()
-            sensor_temp = self.features["sensor_temperature"].get()
+        set_temp = self.features["temperature_control"].get()
+        sensor_temp = self.features["sensor_temperature"].get()
+        diff = float(set_temp) - sensor_temp
+        while abs(diff) > 1.:
             self.logger.info(
                 f"Sensor is cooling.  Target: {set_temp} C.  Current: {sensor_temp:0.2f} C."
             )
             sleep(5)
-            status = self.features["temperature_status"].get()
-        self.logger.info(self.features["temperature_status"].get())
+            set_temp = self.features["temperature_control"].get()
+            sensor_temp = self.features["sensor_temperature"].get()
+            diff = float(set_temp) - sensor_temp
+        self.logger.info("Sensor temp is stabilized.")
 
     async def _measure(self):
         image_size_bytes = self.features["image_size_bytes"].get()

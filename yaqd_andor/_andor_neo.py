@@ -116,7 +116,7 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         for k in ["aoi_height", "aoi_width", "aoi_top", "aoi_left", "aoi_binning"]:
             self.logger.debug(f"{k}: {self.features[k].get()}")
 
-    async def _set_temperature(self):
+    def _set_temperature(self):
         # possible_temps = self.features["temperature_control"].options()
         sensor_cooling = self._config["sensor_cooling"]
         self.features["sensor_cooling"].set(sensor_cooling)

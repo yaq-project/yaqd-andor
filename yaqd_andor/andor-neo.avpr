@@ -1,13 +1,13 @@
 {
     "config": {
-        "aoi_binning": {
-            "default": "1x1",
+        "aoi_hbin": {
+            "default": 1,
             "doc": "Option to bin pixels both horizontally and vertically.  Default is no binning (1x1).",
-            "type": "binning_modes"
+            "type": "int"
         },
         "aoi_height": {
             "default": null,
-            "doc": "Specify the pixel height. \\\n    Can be no larger than sensor_height - (aoi_top - 1). \\\n    Default is the full height of camera. \\\n    ",
+            "doc": "Specify the pixel height. \\\n    Can be no larger than sensor_height - (aoi_top - 1). \\\n    Default is the full height of camera. \\\n    Units of super-pixels. \\\n    ",
             "type": [
                 "null",
                 "int"
@@ -15,7 +15,7 @@
         },
         "aoi_left": {
             "default": null,
-            "doc": "Specify left most coordinate of AOI. \\\n    Defaults to the full left of the sensor (1). \\\n    ",
+            "doc": "Specify left most coordinate of AOI. \\\n    Defaults to the full left of the sensor (1). \\\n    Units of pixels. \\\n    ",
             "type": [
                 "null",
                 "int"
@@ -23,15 +23,19 @@
         },
         "aoi_top": {
             "default": null,
-            "doc": "Specify top coordinate (units of pixels). \\\n    Defaults to the top of the camera sensor (1). \\\n    ",
+            "doc": "Specify top coordinate (units of pixels). \\\n    Defaults to the top of the camera sensor (1). \\\n    Units of pixels. \\\n    ",
             "type": [
                 "null",
                 "int"
             ]
         },
+        "aoi_vbin": {
+            "default": 1,
+            "type": "int"
+        },
         "aoi_width": {
             "default": null,
-            "doc": "",
+            "doc": "Specify width of AOI, in units of super-pixels. \\\n    Defaults to the full width of sensor.\n    ",
             "type": [
                 "null",
                 "int"
@@ -108,19 +112,6 @@
                 "null",
                 "string"
             ]
-        },
-        "simple_preamp_gain_control": {
-            "default": "16-bit (low noise & high well capacity)",
-            "type": "preamp_gain_options"
-        },
-        "spurious_noise_filter": {
-            "default": false,
-            "doc": "Corrects high value pixels using mean of surrounding pixels.",
-            "type": "boolean"
-        },
-        "static_blemish_correction": {
-            "default": false,
-            "type": "boolean"
         }
     },
     "doc": "",
@@ -251,14 +242,11 @@
             "response": "int"
         },
         "get_sensor_info": {
-            "doc": "Return a dictionary containing information about the sensor.",
+            "doc": "Return a dictionary containing key information about the sensor.",
             "request": [],
             "response": {
                 "type": "map",
-                "values": [
-                    "int",
-                    "float"
-                ]
+                "values": "string"
             }
         },
         "get_sensor_temperature": {
@@ -315,7 +303,7 @@
             "response": "null"
         }
     },
-    "protocol": "andor-neo",
+    "protocol": "andor-simcam",
     "requires": [],
     "state": {
         "accumulate_count": {
@@ -331,36 +319,16 @@
     },
     "traits": [
         "has-mapping",
-        "is-daemon",
         "is-sensor",
+        "is-daemon",
         "has-measure-trigger"
     ],
     "types": [
-        {
-            "name": "preamp_gain_options",
-            "symbols": [
-                "12-bit (high well capacity)",
-                "12-bit (low noise)",
-                "16-bit (low noise & high well capacity)"
-            ],
-            "type": "enum"
-        },
         {
             "name": "shuttering_modes",
             "symbols": [
                 "rolling",
                 "global"
-            ],
-            "type": "enum"
-        },
-        {
-            "name": "binning_modes",
-            "symbols": [
-                "1x1",
-                "2x2",
-                "3x3",
-                "4x4",
-                "8x8"
             ],
             "type": "enum"
         },

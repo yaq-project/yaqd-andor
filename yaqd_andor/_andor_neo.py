@@ -2,6 +2,7 @@ __all__ = ["AndorNeo"]
 
 import asyncio
 import numpy as np
+from time import sleep
 
 from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
 from typing import Dict, Any, List
@@ -68,6 +69,8 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         self.features["exposure_time"].set(self._state["exposure_time"])
         self.features["simple_preamp_gain_control"].set(self._config["simple_preamp_gain_control"])
 
+        self._set_temperature()
+
         # aoi currently in config, so only need to run on startup
         self._set_aoi()
 
@@ -116,6 +119,32 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         for k in ["aoi_height", "aoi_width", "aoi_top", "aoi_left", "aoi_binning"]:
             self.logger.debug(f"{k}: {self.features[k].get()}")
 
+    def _set_temperature(self):
+        # possible_temps = self.features["temperature_control"].options()
+        sensor_cooling = self._config["sensor_cooling"]
+        self.features["sensor_cooling"].set(sensor_cooling)
+        if sensor_cooling:
+            set_temp = self.features["temperature_control"].get()
+            self.logger.info(f"Sensor is cooling.  Target temp is {set_temp} C.")
+            self._loop.run_in_executor(None, self._check_temp_stabilized)
+        else:
+            sensor_temp = self.features["sensor_temperature"].get()
+            self.logger.info(f"Sensor is not cooled.  Current temp is {sensor_temp} C.")
+
+        status = self.features["temperature_status"].get()
+
+    def _check_temp_stabilized(self):
+        status = self.features["temperature_status"].get()
+        while status in ["Cooling", "Not Stabilised"]:
+            set_temp = self.features["temperature_control"].get()
+            sensor_temp = self.features["sensor_temperature"].get()
+            self.logger.info(
+                f"Sensor is cooling.  Target: {set_temp} C.  Current: {sensor_temp:0.2f} C."
+            )
+            sleep(5)
+            status = self.features["temperature_status"].get()
+        self.logger.info(self.features["temperature_status"].get())
+
     async def _measure(self):
         image_size_bytes = self.features["image_size_bytes"].get()
         buf = np.empty((image_size_bytes,), dtype='B')
@@ -154,6 +183,9 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
 
     def get_sensor_info(self):
         return self.sensor_info
+
+    def get_sensor_temperature(self):
+        return self.features["sensor_temperature"].get()
 
     def get_feature_names(self):
         return [v.sdk_name for v in self.features.values()]

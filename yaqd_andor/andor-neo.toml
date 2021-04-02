@@ -40,6 +40,11 @@ default = false
 type = "boolean"
 default = false
 
+[config.sensor_cooling]
+type = "boolean"
+doc = "set whether or not sensor will be cooled."
+default = false
+
 [config.aoi_binning]
 type = "binning_modes"
 doc = "Option to bin pixels both horizontally and vertically.  Default is no binning (1x1)."
@@ -96,15 +101,6 @@ default = 1
 
 [messages]
 
-[messages.get_heatsink_temperature]
-response = "float"
-
-[messages.get_pixel_height]
-response = "int"
-
-[messages.get_pixel_width]
-response = "int"
-
 [messages.get_sensor_temperature]
 doc = "Sensor temp (Celsius)."
 response = "float"
@@ -112,3 +108,7 @@ response = "float"
 [messages.get_sensor_info]
 doc = "Return a dictionary containing information about the sensor."
 response = {'type'= 'map', 'values'= ["int", "float"]}
+
+[messages.get_feature_names]
+doc = "Return a list of camera features provided by the SDK."
+response = {"type"='array', "items"="string"}

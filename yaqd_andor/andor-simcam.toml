@@ -19,7 +19,6 @@ symbols = ["rolling", "global"]
 
 [config.aoi_hbin]
 type = "int"
-doc = "Option to bin pixels both horizontally and vertically.  Default is no binning (1x1)."
 default = 1
 
 [config.aoi_vbin]

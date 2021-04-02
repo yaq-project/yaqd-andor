@@ -109,17 +109,18 @@ class AndorSimcam(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             self.logger.debug(f"{k}: {self.features[k].get()}")
 
     async def _measure(self):
-        imageSizeBytes = self.sdk3.get_int(self.hndl, "ImageSizeBytes")
-        buf = np.empty((imageSizeBytes,), dtype='B')
+        image_size_bytes = self.features["image_size_bytes"].get()
+        buf = np.empty((image_size_bytes,), dtype='B')
         try:
-            self.sdk3.queue_buffer(self.hndl, buf.ctypes.data, imageSizeBytes)
+            self.sdk3.queue_buffer(self.hndl, buf.ctypes.data, image_size_bytes)
             # acquire frame
-            self.sdk3.command(self.hndl, "AcquisitionStart")
+            self.features["acquisition_start"]()
             self.logger.debug("Waiting on buffer")
-            (returnedBuf, returnedSize) = self.sdk3.wait_buffer(self.hndl)
+            (returnedBuf, returnedSize) = await self._loop.run_in_executor(
+                None, self.sdk3.wait_buffer, self.hndl
+            )
             self.logger.debug("Done waiting on buffer")
-            self.logger.debug(f"{imageSizeBytes}, {returnedSize}")
-            self.sdk3.command(self.hndl,"AcquisitionStop")
+            self.features["acquisition_stop"]()
         except ATCoreException as err:
             self.logger.error(f"SDK3 Error {err}")
 
@@ -132,7 +133,7 @@ class AndorSimcam(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                     "strides": strides,
                     "version": 3,
                 }
-        stride = self.sdk3.get_int(self.hndl, "AOIStride")
+        stride = self.features["aoi_stride"].get()
         pixels = np.array(ArrayInterface(buf.data, self._channel_shapes["image"], (stride, 2)))
         self.logger.debug(f"{pixels.size}, {np.prod(self._channel_shapes['image'])}")
         pixels = np.ascontiguousarray(pixels)

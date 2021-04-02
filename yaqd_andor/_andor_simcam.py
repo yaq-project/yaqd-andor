@@ -50,13 +50,15 @@ class AndorSimcam(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                     )
                     pass
                 else:
-                    self.logger.debug(f"{k}, {self.features[k].is_implemented}, {self.features[k].is_readonly}")
+                    s = f"{k}: "
+                    s+= "implemented, " if self.features[k].is_implemented else ""
+                    s+= "readonly" if self.features[k].is_readonly else ""
+                    self.logger.debug(s)
 
         # only need to poll once
         # implement config, state features
         self.features["exposure_time"].set(self._state["exposure_time"])
-        self.features["simple_preamp_gain_control"].set(self._config["simple_preamp_gain_control"])
-
+ 
         # aoi currently in config, so only need to run on startup
         self._set_aoi()
 
@@ -65,12 +67,13 @@ class AndorSimcam(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             "image": (self.features["aoi_height"].get(), self.features["aoi_width"].get())
         }
 
+        self.logger.debug(self._channel_shapes)
+
     def _set_aoi(self):
-        aoi_keys = ["aoi_binning", "aoi_width", "aoi_left", "aoi_height", "aoi_top"]
-        binning, width, left, height, top = [
+        aoi_keys = ["aoi_vbin", "aoi_hbin", "aoi_width", "aoi_left", "aoi_height", "aoi_top"]
+        vbin, hbin, width, left, height, top = [
             self._config[k] for k in aoi_keys
         ]
-        binning = int(binning[0])  # equal xy binning, so only need 1 index
 
         # check if aoi is within sensor limits
         max_width = self.features["sensor_width"].get()
@@ -82,27 +85,27 @@ class AndorSimcam(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         if top is None:
             top = 1
         if width is None:
-            width = (max_width - left + 1) // binning
+            width = (max_width - left + 1) // hbin
         if height is None:
-            height = (max_height - top + 1) // binning
+            height = (max_height - top + 1) // vbin
 
-        self.logger.debug(f"{max_width}, {max_height}, {binning}, {width}, {height}, {top}")
-        w_extent = width * binning + (left-1)
-        h_extent = height * binning  + (top-1)
+        self.logger.debug(f"{max_width}, {max_height}, {hbin}, {width}, {height}, {top}")
+        w_extent = width * hbin + (left-1)
+        h_extent = height * vbin  + (top-1)
         if w_extent > max_width:
             raise ValueError(f"height extends over {w_extent} pixels, max is {max_width}")
         if h_extent > max_height:
             raise ValueError(f"height extends over {h_extent} pixels, max is {max_height}")
 
-        self.features["aoi_binning"].set(f"{binning}x{binning}")
-        self.features["aoi_width"].set(width)
-        self.features["aoi_left"].set(left)
-        self.features["aoi_height"].set(height)
-        self.features["aoi_top"].set(top)
+        if False:  # ddk: seems they are not currently writable...
+            self.features["aoi_width"].set(width)
+            self.features["aoi_left"].set(left)
+            self.features["aoi_height"].set(height)
+            self.features["aoi_top"].set(top)
 
         # todo: apply aoi to mapping
 
-        for k in ["aoi_height", "aoi_width", "aoi_top", "aoi_left", "aoi_binning"]:
+        for k in aoi_keys:
             self.logger.debug(f"{k}: {self.features[k].get()}")
 
     async def _measure(self):

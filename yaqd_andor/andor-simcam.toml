@@ -11,30 +11,20 @@ PyPI = "https://pypi.org/project/yaqd-andor"
 
 [[types]]
 type = "enum"
-name = "preamp_gain_options"
-symbols = [
-    "12-bit (high well capacity)",
-    "12-bit (low noise)",
-    "16-bit (low noise & high well capacity)"
-]
-
-[[types]]
-type = "enum"
 name = "shuttering_modes"
 symbols = ["rolling", "global"]
-
-[[types]]
-type = "enum"
-name = "binning_modes"
-symbols = ["1x1", "2x2", "3x3", "4x4", "8x8"]
 
 
 [config]
 
-[config.aoi_binning]
-type = "binning_modes"
+[config.aoi_hbin]
+type = "int"
 doc = "Option to bin pixels both horizontally and vertically.  Default is no binning (1x1)."
-default = "1x1"
+default = 1
+
+[config.aoi_vbin]
+type = "int"
+default = 1
 
 [config.aoi_width]
 type = ["null", "int"]
@@ -72,10 +62,6 @@ default = "__null__"
 type = "shuttering_modes"
 doc = "'rolling' or 'global'"
 default = "rolling"
-
-[config.simple_preamp_gain_control]
-type = "preamp_gain_options"
-default = "16-bit (low noise & high well capacity)"
 
 
 [state]

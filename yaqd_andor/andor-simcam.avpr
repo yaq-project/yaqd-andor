@@ -1,9 +1,9 @@
 {
     "config": {
-        "aoi_binning": {
-            "default": "1x1",
+        "aoi_hbin": {
+            "default": 1,
             "doc": "Option to bin pixels both horizontally and vertically.  Default is no binning (1x1).",
-            "type": "binning_modes"
+            "type": "int"
         },
         "aoi_height": {
             "default": null,
@@ -28,6 +28,10 @@
                 "null",
                 "int"
             ]
+        },
+        "aoi_vbin": {
+            "default": 1,
+            "type": "int"
         },
         "aoi_width": {
             "default": null,
@@ -108,10 +112,6 @@
                 "null",
                 "string"
             ]
-        },
-        "simple_preamp_gain_control": {
-            "default": "16-bit (low noise & high well capacity)",
-            "type": "preamp_gain_options"
         }
     },
     "doc": "",
@@ -318,37 +318,17 @@
         }
     },
     "traits": [
-        "has-measure-trigger",
         "has-mapping",
         "is-sensor",
-        "is-daemon"
+        "is-daemon",
+        "has-measure-trigger"
     ],
     "types": [
-        {
-            "name": "preamp_gain_options",
-            "symbols": [
-                "12-bit (high well capacity)",
-                "12-bit (low noise)",
-                "16-bit (low noise & high well capacity)"
-            ],
-            "type": "enum"
-        },
         {
             "name": "shuttering_modes",
             "symbols": [
                 "rolling",
                 "global"
-            ],
-            "type": "enum"
-        },
-        {
-            "name": "binning_modes",
-            "symbols": [
-                "1x1",
-                "2x2",
-                "3x3",
-                "4x4",
-                "8x8"
             ],
             "type": "enum"
         },

@@ -30,7 +30,7 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             serial = self.sdk3.get_string(temp, "SerialNumber")
             if serial == self._config["serial"]:
                 self.hndl = temp
-                print("    Serial No   : ",serial)
+                print("    Serial No   : ", serial)
                 break
             self.sdk3.close(temp)
         else:
@@ -42,16 +42,16 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         for k, v in features.specs.items():
             if "n" in v.availability:
                 try:
-                    self.features[k] = features.obj_from_spec(
-                        self.sdk3, self.hndl, v
-                    )
+                    self.features[k] = features.obj_from_spec(self.sdk3, self.hndl, v)
                 except NotImplementedError:
                     self.logger.debug(
                         f"feature {v.sdk_name} is supposed to be implemented, but is not!"
                     )
                     pass
                 else:
-                    self.logger.debug(f"{k}, {self.features[k].is_implemented}, {self.features[k].is_readonly}")
+                    self.logger.debug(
+                        f"{k}, {self.features[k].is_implemented}, {self.features[k].is_readonly}"
+                    )
 
         # only need to poll once
         self.sensor_info = {}
@@ -61,13 +61,15 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             try:
                 self.sensor_info[k] = self.features[k].get()
             except ATCoreException as err:
-                # self.logger.log(err.msg)
                 pass
         self.logger.debug(self.sensor_info)
 
         # implement config, state features
-        self.features["exposure_time"].set(self._state["exposure_time"])
+        self.features["spurious_noise_filter"].set(self._config["spurious_noise_filter"])
+        self.features["static_blemish_correction"].set(self._config["static_blemish_correction"])
+        self.features["electronic_shuttering_mode"].set(self._config["electronic_shuttering_mode"])
         self.features["simple_preamp_gain_control"].set(self._config["simple_preamp_gain_control"])
+        self.features["exposure_time"].set(self._state["exposure_time"])
         # aoi currently in config, so only need to run on startup
         self._set_aoi()
         # apply channel shape

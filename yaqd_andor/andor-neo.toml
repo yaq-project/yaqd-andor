@@ -89,14 +89,8 @@ default = "16-bit (low noise & high well capacity)"
 
 [state]
 
-[state.accumulate_count]
-type = "int"
-doc = "Number of images that should be summed to obtain each image. Not implemented."
-default = 1
-
 [state.exposure_time]
 type = "float"
-doc = "Requested Exposure time, in seconds."
 default = 1
 
 [messages]

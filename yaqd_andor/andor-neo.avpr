@@ -38,8 +38,8 @@
             ]
         },
         "electronic_shuttering_mode": {
-            "default": "rolling",
-            "doc": "'rolling' or 'global'",
+            "default": "Rolling",
+            "doc": "'Rolling' or 'Global'",
             "type": "shuttering_modes"
         },
         "enable": {
@@ -325,10 +325,10 @@
         }
     },
     "traits": [
-        "is-sensor",
-        "has-measure-trigger",
         "has-mapping",
-        "is-daemon"
+        "is-daemon",
+        "has-measure-trigger",
+        "is-sensor"
     ],
     "types": [
         {
@@ -343,8 +343,8 @@
         {
             "name": "shuttering_modes",
             "symbols": [
-                "rolling",
-                "global"
+                "Rolling",
+                "Global"
             ],
             "type": "enum"
         },

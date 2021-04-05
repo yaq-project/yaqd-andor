@@ -21,7 +21,7 @@ symbols = [
 [[types]]
 type = "enum"
 name = "shuttering_modes"
-symbols = ["rolling", "global"]
+symbols = ["Rolling", "Global"]
 
 [[types]]
 type = "enum"
@@ -79,8 +79,8 @@ default = "__null__"
 
 [config.electronic_shuttering_mode]
 type = "shuttering_modes"
-doc = "'rolling' or 'global'"
-default = "rolling"
+doc = "'Rolling' or 'Global'"
+default = "Rolling"
 
 [config.simple_preamp_gain_control]
 type = "preamp_gain_options"

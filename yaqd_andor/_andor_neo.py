@@ -69,7 +69,7 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         self.features["static_blemish_correction"].set(self._config["static_blemish_correction"])
         self.features["electronic_shuttering_mode"].set(self._config["electronic_shuttering_mode"])
         self.features["simple_preamp_gain_control"].set(self._config["simple_preamp_gain_control"])
-        self.features["exposure_time"].set(self._state["exposure_time"])
+        self.features["exposure_time"].set(self._config["exposure_time"])
         # aoi currently in config, so only need to run on startup
         self._set_aoi()
         self._set_temperature()

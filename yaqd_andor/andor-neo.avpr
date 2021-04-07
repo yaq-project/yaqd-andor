@@ -48,6 +48,11 @@
             "origin": "is-daemon",
             "type": "boolean"
         },
+        "exposure_time": {
+            "default": 1,
+            "doc": "Camera exposure time (seconds).",
+            "type": "float"
+        },
         "log_level": {
             "default": "info",
             "doc": "Set daemon log-level.",
@@ -341,12 +346,6 @@
     },
     "protocol": "andor-neo",
     "requires": [],
-    "state": {
-        "exposure_time": {
-            "default": 1,
-            "type": "float"
-        }
-    },
     "traits": [
         "has-measure-trigger",
         "is-sensor",

@@ -72,10 +72,6 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         self.features["exposure_time"].set(self._state["exposure_time"])
         # aoi currently in config, so only need to run on startup
         self._set_aoi()
-        # apply channel shape
-        self._channel_shapes = {
-            "image": (self.features["aoi_height"].get(), self.features["aoi_width"].get())
-        }
         self._set_temperature()
 
     def _set_aoi(self):
@@ -175,7 +171,6 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                 None, self.sdk3.wait_buffer, self.hndl
             )
             self.logger.debug("Done waiting on buffer")
-            self.logger.debug(f"{image_size_bytes}, {returnedSize}")
             self.features["acquisition_stop"]()
         except ATCoreException as err:
             self.logger.error(f"SDK3 Error {err}")

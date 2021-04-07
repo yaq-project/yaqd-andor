@@ -2,12 +2,12 @@
     "config": {
         "aoi_binning": {
             "default": "1x1",
-            "doc": "Option to bin pixels both horizontally and vertically.  Default is no binning (1x1).",
+            "doc": "Option to bin pixels both horizontally and vertically. \\\n    Default is no binning (1x1).",
             "type": "binning_modes"
         },
         "aoi_height": {
             "default": null,
-            "doc": "Specify the pixel height. \\\n    Can be no larger than sensor_height - (aoi_top - 1). \\\n    Default is the full height of camera. \\\n    ",
+            "doc": "Specify the number of pixel rows to acquire. \\\n    Can be no larger than `sensor_height` - (`aoi_top` - 1). \\\n    Defaults to use all rows starting from `aoi_top`. \\\n    ",
             "type": [
                 "null",
                 "int"
@@ -15,7 +15,7 @@
         },
         "aoi_left": {
             "default": null,
-            "doc": "Specify left most coordinate of AOI. \\\n    Defaults to the full left of the sensor (1). \\\n    ",
+            "doc": "Specify left-most pixel column of the AOI. \\\n    Defaults to the full left of the camera sensor (column 1). \\\n    ",
             "type": [
                 "null",
                 "int"
@@ -23,7 +23,7 @@
         },
         "aoi_top": {
             "default": null,
-            "doc": "Specify top coordinate (units of pixels). \\\n    Defaults to the top of the camera sensor (1). \\\n    ",
+            "doc": "Specify the top-most pixel row of the AOI. \\\n    Defaults to the top of the camera sensor (1). \\\n    ",
             "type": [
                 "null",
                 "int"
@@ -31,7 +31,7 @@
         },
         "aoi_width": {
             "default": null,
-            "doc": "",
+            "doc": "Specify the number of pixel columns to acquire. \\\n    Can be no larger than `sensor_width` - (`aoi_left` - 1). \\\n    Defaults to use all columns starting from `aoi_left`. \\\n    ",
             "type": [
                 "null",
                 "int"
@@ -102,7 +102,7 @@
         },
         "sensor_cooling": {
             "default": false,
-            "doc": "set whether or not sensor will be cooled.",
+            "doc": "Set whether or not sensor will be cooled.",
             "type": "boolean"
         },
         "serial": {
@@ -201,12 +201,40 @@
             "response": "string"
         },
         "get_feature_names": {
-            "doc": "Return a list of camera features provided by the SDK.",
+            "doc": "Return a list of available SDK features. \\\n    Different camera types have different available features. \\\n    All features names are snake case (e.g. `sensor_temperature`), \\\n    distinct from Pascal case (e.g. SensorTemperature) of the direct SDK. \\\n    ",
             "request": [],
             "response": {
                 "items": "string",
                 "type": "array"
             }
+        },
+        "get_feature_options": {
+            "doc": "Return enumerated options for specified feature name (snake case). \\\n    If specified feature is not type `enum`, raises error.",
+            "request": [
+                {
+                    "name": "feature_name",
+                    "type": "string"
+                }
+            ],
+            "response": {
+                "items": "string",
+                "type": "array"
+            }
+        },
+        "get_feature_value": {
+            "doc": "Reads the current value for the specified (snake case) feature name.",
+            "request": [
+                {
+                    "name": "feature_name",
+                    "type": "string"
+                }
+            ],
+            "response": [
+                "string",
+                "int",
+                "float",
+                "boolean"
+            ]
         },
         "get_mapping_id": {
             "doc": "Mapping ID. This integer increments every time the mapping is updated. Clients can safely check this id to verify that their cached mappings are correct, if desired.",
@@ -261,11 +289,6 @@
                     "float"
                 ]
             }
-        },
-        "get_sensor_temperature": {
-            "doc": "Sensor temp (Celsius).",
-            "request": [],
-            "response": "float"
         },
         "get_state": {
             "doc": "Get version of the running daemon",
@@ -325,10 +348,10 @@
         }
     },
     "traits": [
-        "has-mapping",
-        "is-daemon",
         "has-measure-trigger",
-        "is-sensor"
+        "is-sensor",
+        "has-mapping",
+        "is-daemon"
     ],
     "types": [
         {

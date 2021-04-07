@@ -5,7 +5,7 @@ import numpy as np
 from time import sleep
 
 from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Union
 from . import atcore 
 from . import features
 
@@ -95,9 +95,11 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         if top is None:
             top = 1
         if width is None:
-            width = (max_width - left + 1) // binning
+            width = max_width - left + 1
         if height is None:
-            height = (max_height - top + 1) // binning
+            height = max_height - top + 1
+        width //= binning
+        height //= binning
 
         self.logger.debug(f"{max_width}, {max_height}, {binning}, {width}, {height}, {top}")
         w_extent = width * binning + (left-1)
@@ -113,7 +115,22 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         self.features["aoi_height"].set(height)
         self.features["aoi_top"].set(top)
 
-        # todo: apply aoi to mapping
+        # apply shape, mapping
+        self._channel_shapes = {
+            "image": (self.features["aoi_height"].get(), self.features["aoi_width"].get())
+        }
+        x_ai = np.arange(left, width * binning, binning)[None, :]
+        y_ai = np.arange(top, height * binning, binning)[:, None]
+        
+        x_index = x_ai.__array_interface__
+        x_index["data"] = x_ai.tobytes()
+        y_index = y_ai.__array_interface__
+        y_index["data"] = y_ai.tobytes()
+        
+        self._mappings = {
+            "x_index": x_index,
+            "y_index": y_index
+        }
 
         for k in ["aoi_height", "aoi_width", "aoi_top", "aoi_left", "aoi_binning"]:
             self.logger.debug(f"{k}: {self.features[k].get()}")
@@ -185,11 +202,19 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
     def get_sensor_info(self):
         return self.sensor_info
 
-    def get_sensor_temperature(self):
-        return self.features["sensor_temperature"].get()
-
-    def get_feature_names(self):
+    def get_feature_names(self) -> List[str]:
         return [v.sdk_name for v in self.features.values()]
+
+    def get_feature_value(self, k:str) -> Union(int, bool, float, str):
+        feature = self.features[k]
+        return feature.get()
+
+    def get_feature_options(self, k:str) -> List[str]:
+        feature = self.features[k]
+        # if isinstance(feature, features.SDKEnum):
+        return feature.options()
+        # else:
+        #     raise ValueError(f"feature {feature} is of type {type(feature)}, not `SDKEnum`.")
 
     def close(self):
         self.sdk3.close(self.hndl)

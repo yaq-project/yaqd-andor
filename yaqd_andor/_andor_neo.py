@@ -115,8 +115,8 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         self._channel_shapes = {
             "image": (self.features["aoi_height"].get(), self.features["aoi_width"].get())
         }
-        x_ai = np.arange(left, width * binning, binning)[None, :]
-        y_ai = np.arange(top, height * binning, binning)[:, None]
+        x_ai = np.arange(left, left + width * binning, binning)[None, :]
+        y_ai = np.arange(top, top + height * binning, binning)[:, None]
         
         x_index = x_ai.__array_interface__
         x_index["data"] = x_ai.tobytes()

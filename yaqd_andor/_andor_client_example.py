@@ -1,5 +1,5 @@
-import yaqc
-import matplotlib.pyplot as plt
+import yaqc  # type: ignore
+import matplotlib.pyplot as plt  # type: ignore
 import time
 import numpy as np
 

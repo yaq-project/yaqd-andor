@@ -19,6 +19,7 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
         self._channel_names = ["image"]
+        self._channel_mappings = {"image": ["x_index", "y_index"]}
         self.sdk3 = ATCore() # Initialise SDK3
         # find devices
         device_count = self.sdk3.get_int(self.sdk3.AT_HNDL_SYSTEM, "DeviceCount")

@@ -200,7 +200,7 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
     def get_feature_names(self) -> List[str]:
         return [v.sdk_name for v in self.features.values()]
 
-    def get_feature_value(self, k:str) -> Union(int, bool, float, str):
+    def get_feature_value(self, k:str) -> Union[int, bool, float, str]:
         feature = self.features[k]
         return feature.get()
 

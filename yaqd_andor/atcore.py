@@ -113,7 +113,7 @@ class ATCore(object):
     AT_HNDL_SYSTEM = 1
 
     def __init__(self):
-        from cffi import FFI
+        from cffi import FFI  # type: ignore
         self.ffi = FFI()
         self.ffi.set_unicode(True)
         self.C = self.ffi.cdef("""

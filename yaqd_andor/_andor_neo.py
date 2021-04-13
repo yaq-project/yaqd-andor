@@ -165,13 +165,15 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
     async def _measure(self):
         image_size_bytes = self.features["image_size_bytes"].get()
         buf = np.empty((image_size_bytes,), dtype='B')
+        timeout = self.features["exposure_time"].get() * 2e3
+        # 2e3: seconds to ms (1e3), plus wait twice as long as acquisition before timeout
         try:
             self.sdk3.queue_buffer(self.hndl, buf.ctypes.data, image_size_bytes)
             # acquire frame
             self.features["acquisition_start"]()
             self.logger.debug("Waiting on buffer")
             (returnedBuf, returnedSize) = await self._loop.run_in_executor(
-                None, self.sdk3.wait_buffer, self.hndl
+                None, self.sdk3.wait_buffer, self.hndl, timeout
             )
             self.logger.debug("Done waiting on buffer")
             self.features["acquisition_stop"]()
@@ -207,10 +209,12 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         feature = self.features[k]
         return feature.get()
 
-    def get_feature_options(self, k:str) -> List[str]:
+    def get_feature_options(self, k:str) -> List[str]:  # -> List[Union[str, float, int]]:
         feature = self.features[k]
         # if isinstance(feature, features.SDKEnum):
         return feature.options()
+        # elif isinstance(feature, features.SDKFloat) or isinstance(feature, features.SDKInt):
+        #     return [feature.min(), feature.max()]
         # else:
         #     raise ValueError(f"feature {feature} is of type {type(feature)}, not `SDKEnum`.")
 

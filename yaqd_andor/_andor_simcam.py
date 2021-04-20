@@ -3,75 +3,27 @@ __all__ = ["AndorSimcam"]
 import asyncio
 import numpy as np
 
-from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
 from typing import Dict, Any, List
 from . import atcore 
 from . import features
+from . import _andor_sdk3
 
 ATCore = atcore.ATCore
 ATCoreException = atcore.ATCoreException
 
 
-class AndorSimcam(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
+class AndorSimcam(_andor_sdk3.AndorSDK3):
     _kind = "andor-simcam"
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
-        self._channel_names = ["image"]
-        self.sdk3 = ATCore() # Initialise SDK3
-        # find devices
-        device_count = self.sdk3.get_int(self.sdk3.AT_HNDL_SYSTEM, "DeviceCount")
-        if device_count == 0:
-            raise ConnectionError("No devices found.")
-        # select device
-        for i in range(device_count):
-            temp = self.sdk3.open(i)
-            serial = self.sdk3.get_string(temp, "SerialNumber")
-            if serial == self._config["serial"]:
-                self.hndl = temp
-                print("    Serial No   : ",serial)
-                break
-            self.sdk3.close(temp)
-        else:
-            raise ConnectionError(
-                r"device with serial number {0} not found".format(self._config["serial"])
-            )
-
-        self.features = {}
-        for k, v in features.specs.items():
-            if "s" in v.availability:
-                try:
-                    self.features[k] = features.obj_from_spec(
-                        self.sdk3, self.hndl, v
-                    )
-                except NotImplementedError:
-                    self.logger.debug(
-                        f"feature {v.sdk_name} is supposed to be implemented, but is not!"
-                    )
-                    pass
-                else:
-                    s = f"{k}: "
-                    s+= "implemented, " if self.features[k].is_implemented else ""
-                    s+= "readonly" if self.features[k].is_readonly else ""
-                    self.logger.debug(s)
-
-        # only need to poll once
         # implement config, state features
-        self.features["exposure_time"].set(self._state["exposure_time"])
- 
-        # aoi currently in config, so only need to run on startup
+        self.features["exposure_time"].set(self._config["exposure_time"])
         self._set_aoi()
 
-        # apply channel shape
-        self._channel_shapes = {
-            "image": (self.features["aoi_height"].get(), self.features["aoi_width"].get())
-        }
-
-        self.logger.debug(self._channel_shapes)
-
     def _set_aoi(self):
-        aoi_keys = ["aoi_vbin", "aoi_hbin", "aoi_width", "aoi_left", "aoi_height", "aoi_top"]
-        vbin, hbin, width, left, height, top = [
+        aoi_keys = ["aoi_hbin", "aoi_vbin", "aoi_width", "aoi_left", "aoi_height", "aoi_top"]
+        aoi_hbin, aoi_vbin, width, left, height, top = [
             self._config[k] for k in aoi_keys
         ]
 
@@ -85,27 +37,48 @@ class AndorSimcam(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         if top is None:
             top = 1
         if width is None:
-            width = (max_width - left + 1) // hbin
+            width = max_width - left + 1
         if height is None:
-            height = (max_height - top + 1) // vbin
+            height = max_height - top + 1
+        width //= aoi_hbin
+        height //= aoi_vbin
 
-        self.logger.debug(f"{max_width}, {max_height}, {hbin}, {width}, {height}, {top}")
-        w_extent = width * hbin + (left-1)
-        h_extent = height * vbin  + (top-1)
+        self.logger.debug(f"{max_width}, {max_height}, {aoi_hbin}, {aoi_vbin}, {width}, {height}, {top}")
+        w_extent = width * aoi_hbin + (left-1)
+        h_extent = height * aoi_vbin  + (top-1)
         if w_extent > max_width:
             raise ValueError(f"height extends over {w_extent} pixels, max is {max_width}")
         if h_extent > max_height:
             raise ValueError(f"height extends over {h_extent} pixels, max is {max_height}")
 
-        if False:  # ddk: seems they are not currently writable...
+        try:
+            self.features["aoi_hbin"].set(aoi_hbin)
+            self.features["aoi_vbin"].set(aoi_vbin)
             self.features["aoi_width"].set(width)
             self.features["aoi_left"].set(left)
             self.features["aoi_height"].set(height)
             self.features["aoi_top"].set(top)
+        except:
+            pass
 
-        # todo: apply aoi to mapping
+        # apply shape, mapping
+        self._channel_shapes = {
+            "image": (self.features["aoi_height"].get(), self.features["aoi_width"].get())
+        }
+        x_ai = np.arange(left, left + width * aoi_hbin, aoi_hbin)[None, :]
+        y_ai = np.arange(top, top + height * aoi_vbin, aoi_vbin)[:, None]
+        
+        x_index = x_ai.__array_interface__
+        x_index["data"] = x_ai.tobytes()
+        y_index = y_ai.__array_interface__
+        y_index["data"] = y_ai.tobytes()
+        
+        self._mappings = {
+            "x_index": x_index,
+            "y_index": y_index
+        }
 
-        for k in aoi_keys:
+        for k in ["aoi_height", "aoi_width", "aoi_top", "aoi_left", "aoi_hbin", "aoi_vbin"]:
             self.logger.debug(f"{k}: {self.features[k].get()}")
 
     async def _measure(self):
@@ -142,12 +115,3 @@ class AndorSimcam(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         self.sdk3.flush(self.hndl)
 
         return {"image": arrayinterface}
-
-    def get_sensor_info(self):
-        return self.sensor_info
-
-    def list_features(self):
-        pass
-
-    def close(self):
-        self.sdk3.close(self.hndl)

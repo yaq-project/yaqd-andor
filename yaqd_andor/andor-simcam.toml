@@ -16,6 +16,11 @@ symbols = ["rolling", "global"]
 
 
 [config]
+[config.make]
+default = "andor"
+
+[config.model]
+default = "simcam"
 
 [config.aoi_hbin]
 type = "int"
@@ -62,35 +67,34 @@ type = "shuttering_modes"
 doc = "'rolling' or 'global'"
 default = "rolling"
 
-
-[state]
-
-[state.accumulate_count]
-type = "int"
-doc = "Number of images that should be summed to obtain each image. Not implemented."
-default = 1
-
-[state.exposure_time]
+[config.exposure_time]
 type = "float"
 doc = "Requested Exposure time, in seconds."
 default = 1
 
+[state]
 
 [messages]
 
-[messages.get_heatsink_temperature]
-response = "float"
-
-[messages.get_pixel_height]
-response = "int"
-
-[messages.get_pixel_width]
-response = "int"
-
-[messages.get_sensor_temperature]
-doc = "Sensor temp (Celsius)."
-response = "float"
-
 [messages.get_sensor_info]
-doc = "Return a dictionary containing key information about the sensor."
-response = {'type'= 'map', 'values'= 'string'}
+doc = "Return a dictionary containing information about the sensor."
+response = {'type'= 'map', 'values'= ["int", "float"]}
+
+[messages.get_feature_names]
+doc = """Return a list of available SDK features. \\
+    Different camera types have different available features. \\
+    All features names are snake case (e.g. `sensor_temperature`), \\
+    distinct from Pascal case (e.g. SensorTemperature) of the direct SDK. \\
+    """
+response = {"type"='array', "items"="string"}
+
+[messages.get_feature_value]
+doc = "Reads the current value for the specified (snake case) feature name."
+request = [{"name"="feature_name", "type"="string"}]
+response = ["string", "int", "float", "boolean"]
+
+[messages.get_feature_options]
+doc = """Return enumerated options for specified feature name (snake case). \\
+    If specified feature is not type `enum`, raises error."""
+request = [{"name"="feature_name", "type"="string"}]
+response = {"type"="array", "items"="string"}

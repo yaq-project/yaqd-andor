@@ -105,14 +105,14 @@ class Feature:
         if self.sdk.is_readable(self.hndl, self.sdk_name):
             return self.sdk.__getattribute__(call)(self.hndl, self.sdk_name)
         else:
-            raise TypeError(f"call {call} is not readable")
+            raise TypeError(f"{self.sdk_name} call {call} is not readable")
 
     def _set(self, value):
         call = self._set_call
         if self.sdk.is_writable(self.hndl, self.sdk_name):
             return self.sdk.__getattribute__(call)(self.hndl, self.sdk_name, value)
         else:
-            raise ValueError(f"call {call} is not currently writable")    
+            raise ValueError(f"{self.sdk_name} call {call} is not currently writable")    
 
 
 class SDKString(Feature):

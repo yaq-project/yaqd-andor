@@ -33,6 +33,8 @@ dev = ["black", "pre-commit"]
 yaqd-andor-neo = "yaqd_andor._andor_neo:AndorNeo.main"
 yaqd-andor-simcam = "yaqd_andor._andor_simcam:AndorSimcam.main"
 
+[tool.flit.sdist]
+exclude=["supplemental/"]
 
 [tool.black]
 line-length = 99

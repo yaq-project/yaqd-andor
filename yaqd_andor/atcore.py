@@ -1,6 +1,6 @@
 import sys
 import os
-os.chdir(os.path.dirname(__file__))
+import pathlib
 
 if sys.version < '3':
     import codecs
@@ -174,7 +174,8 @@ class ATCore(object):
         int AT_Flush(AT_H Hndl);
 
         """)
-        self.lib = self.ffi.verify('#include "atcore.h"', include_dirs=["."], libraries=["atcore"])
+        dirs = pathlib.Path(__file__).parent
+        self.lib = self.ffi.verify('#include "atcore.h"', include_dirs=[str(dirs)], libraries=["atcore"])
 
         self.handle_return(self.lib.AT_InitialiseLibrary())
 

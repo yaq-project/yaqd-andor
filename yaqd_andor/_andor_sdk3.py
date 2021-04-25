@@ -3,6 +3,7 @@ __all__ = ["AndorSDK3"]
 import asyncio
 import numpy as np
 from time import sleep
+import os
 
 from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
 from typing import Dict, Any, List, Union
@@ -20,7 +21,13 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         self._channel_mappings = {"image": ["x_index", "y_index"]}
         self._mapping_units = {"x_index": "None", "y_index": "None"}
         self._channel_units = {"image": "counts"}
-        self.sdk = ATCore() # Initialise SDK3
+
+        initial_cwd = os.getcwd()
+        try:
+            os.chdir(os.path.dirname(__file__))
+            self.sdk = ATCore() # Initialise SDK3
+        finally:
+            os.chdir(initial_cwd)
         # find devices
         device_count = self.sdk.get_int(self.sdk.AT_HNDL_SYSTEM, "DeviceCount")
         if device_count == 0:

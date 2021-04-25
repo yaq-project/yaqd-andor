@@ -80,38 +80,3 @@ class AndorSimcam(_andor_sdk3.AndorSDK3):
 
         for k in ["aoi_height", "aoi_width", "aoi_top", "aoi_left", "aoi_hbin", "aoi_vbin"]:
             self.logger.debug(f"{k}: {self.features[k].get()}")
-
-    async def _measure(self):
-        image_size_bytes = self.features["image_size_bytes"].get()
-        buf = np.empty((image_size_bytes,), dtype='B')
-        try:
-            self.sdk3.queue_buffer(self.hndl, buf.ctypes.data, image_size_bytes)
-            # acquire frame
-            self.features["acquisition_start"]()
-            self.logger.debug("Waiting on buffer")
-            (returnedBuf, returnedSize) = await self._loop.run_in_executor(
-                None, self.sdk3.wait_buffer, self.hndl
-            )
-            self.logger.debug("Done waiting on buffer")
-            self.features["acquisition_stop"]()
-        except ATCoreException as err:
-            self.logger.error(f"SDK3 Error {err}")
-
-        class ArrayInterface:
-            def __init__(self, buf, shape, strides):
-                self.__array_interface__ = {
-                    "shape": shape,
-                    "typestr": "<u2",
-                    "data": buf,
-                    "strides": strides,
-                    "version": 3,
-                }
-        stride = self.features["aoi_stride"].get()
-        pixels = np.array(ArrayInterface(buf.data, self._channel_shapes["image"], (stride, 2)))
-        self.logger.debug(f"{pixels.size}, {np.prod(self._channel_shapes['image'])}")
-        pixels = np.ascontiguousarray(pixels)
-        arrayinterface = pixels.__array_interface__
-        arrayinterface["data"] = pixels.tobytes()
-        self.sdk3.flush(self.hndl)
-
-        return {"image": arrayinterface}

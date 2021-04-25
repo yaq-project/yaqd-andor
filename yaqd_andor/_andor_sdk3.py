@@ -102,24 +102,17 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         except ATCoreException as err:
             self.logger.error(f"SDK3 Error {err}")
 
-        class ArrayInterface:
-            def __init__(self, buf, shape, strides):
-                self.__array_interface__ = {
-                    "shape": shape,
-                    "typestr": "<u2",
-                    "data": buf,
-                    "strides": strides,
-                    "version": 3,
-                }
         stride = self.features["aoi_stride"].get()
-        pixels = np.array(ArrayInterface(buf.data, self._channel_shapes["image"], (stride, 2)))
+        pixels = np.lib.stride_tricks.as_strided(
+            np.frombuffer(buf, dtype=np.uint16),
+            shape=self._channel_shapes["image"],
+            strides=(stride, 2)
+        )
         self.logger.debug(f"{pixels.size}, {np.prod(self._channel_shapes['image'])}")
         pixels = np.ascontiguousarray(pixels)
-        arrayinterface = pixels.__array_interface__
-        arrayinterface["data"] = pixels.tobytes()
         self.sdk.flush(self.hndl)
 
-        return {"image": arrayinterface}
+        return {"image": pixels}
 
     def get_sensor_info(self):
         return self.sensor_info

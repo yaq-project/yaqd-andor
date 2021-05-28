@@ -32,6 +32,7 @@ dev = ["black", "pre-commit"]
 [tool.flit.scripts]
 yaqd-andor-neo = "yaqd_andor._andor_neo:AndorNeo.main"
 yaqd-andor-simcam = "yaqd_andor._andor_simcam:AndorSimcam.main"
+yaqd-andor-sona = "yaqd_andor._andor_sona:AndorSona.main"
 
 [tool.flit.sdist]
 exclude=["supplemental/"]

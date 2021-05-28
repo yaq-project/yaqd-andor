@@ -1,0 +1,105 @@
+protocol = "andor-sona"
+doc = ""
+traits = ["has-mapping", "has-measure-trigger", "is-sensor", "is-daemon"]
+
+[links]
+source = "https://gitlab.com/yaq/yaqd-andor"
+bugtracker = "https://gitlab.com/yaq/yaqd-andor/-/issues"
+
+[installation]
+PyPI = "https://pypi.org/project/yaqd-andor"
+
+[[types]]
+type = "enum"
+name = "preamp_gain_options"
+symbols = [
+    "12-bit (high well capacity)",
+    "12-bit (low noise)",
+    "16-bit (low noise and high well capacity)"
+]
+
+[config]
+
+# [config.corrections]
+
+# [config.corrections.spurious_noise_filter]
+# type = "bool"
+# doc = "Corrects high value pixels using mean of surrounding pixels."
+# default = false
+
+# [config.corrections.static_blemish_correction]
+# type = "bool"
+# default = false
+
+# [config.binning]
+
+# [config.binning.bin]
+
+# [config.binning.vstack]
+
+# [config.binning.hstack]
+
+# [config.aoi]
+
+# [config.aoi.width]
+# type = ["null", "int"]
+# doc = ""
+# default = "__null__"
+
+# [config.aoi.left]
+# type = ["null", "int"]
+# doc = "Specify left most coordinate."
+# default = "__null__"
+
+# [config.aoi.height]
+# type = ["null", "int"]
+# doc = ""
+# default = "__null__"
+
+# [config.aoi.top]
+# type = ["null", "int", "string"]
+# doc = "Specify top coordinate.  For vertical centering, use 'center'"
+# default = false
+
+# [config.aoi.vertically_center]
+# type = "bool"
+# doc = ""
+# default = false
+
+# [config.electronic_shuttering_mode]
+# type = "str"
+# doc = "'rolling' or 'global'"
+
+# [config.simple_preamp_gain_control]
+# type = "premp_gain_options"
+
+# [config.transmit_frames]
+# type = "bool"
+# doc = ""
+
+[state]
+
+[state.accumulate_count]
+type = "int"
+doc = "Number of images that should be summed to obtain each image."
+default = 1
+
+[state.exposure_time]
+type = "float"
+doc = "Requested Exposure time, in seconds."
+default = 1
+
+[messages]
+
+[messages.get_heatsink_temperature]
+response = "float"
+
+[messages.get_pixel_height]
+
+[messages.get_pixel_width]
+
+[messages.get_sensor_temperature]
+
+[messages.get_sensor_info]
+doc = "Return a dictionary containing key information about the sensor."
+response = {'type'= 'map', 'values'= 'string'}

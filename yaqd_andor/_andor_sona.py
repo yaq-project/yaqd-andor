@@ -2,6 +2,7 @@ __all__ = ["AndorNeo"]
 
 import asyncio
 import numpy as np
+import os
 
 from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
 from typing import Dict, Any, List
@@ -18,7 +19,12 @@ class AndorSona(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
         self._channel_names = ["image"]
-        self.sdk3 = ATCore() # Initialise SDK3
+        initial_cwd = os.getcwd()
+        try:
+            os.chdir(os.path.dirname(__file__))
+            self.sdk = ATCore() # Initialise SDK3
+        finally:
+            os.chdir(initial_cwd)
         # find devices
         device_count = self.sdk3.get_int(self.sdk3.AT_HNDL_SYSTEM, "DeviceCount")
         if device_count == 0:

@@ -31,6 +31,14 @@ symbols = ["1x1", "2x2", "3x3", "4x4", "8x8"]
 
 [config]
 
+[config.make]
+type = "string"
+default = "Andor"
+
+[config.model]
+type = "string"
+default = "Neo"
+
 [config.spurious_noise_filter]
 type = "boolean"
 doc = "Corrects high value pixels using mean of surrounding pixels."

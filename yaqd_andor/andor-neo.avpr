@@ -85,20 +85,14 @@
             "type": "boolean"
         },
         "make": {
-            "default": null,
+            "default": "Andor",
             "origin": "is-daemon",
-            "type": [
-                "null",
-                "string"
-            ]
+            "type": "string"
         },
         "model": {
-            "default": null,
+            "default": "Neo",
             "origin": "is-daemon",
-            "type": [
-                "null",
-                "string"
-            ]
+            "type": "string"
         },
         "port": {
             "doc": "TCP port for daemon to occupy.",

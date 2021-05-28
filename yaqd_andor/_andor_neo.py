@@ -8,64 +8,17 @@ from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
 from typing import Dict, Any, List, Union
 from . import atcore 
 from . import features
+from . import _andor_sdk3
 
 ATCore = atcore.ATCore
 ATCoreException = atcore.ATCoreException
 
 
-class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
+class AndorNeo(_andor_sdk3.AndorSDK3):
     _kind = "andor-neo"
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
-        self._channel_names = ["image"]
-        self._channel_mappings = {"image": ["x_index", "y_index"]}
-        self._mapping_units = {"x_index": "None", "y_index": "None"}
-        self._channel_units = {"image": "counts"}
-        self.sdk3 = ATCore() # Initialise SDK3
-        # find devices
-        device_count = self.sdk3.get_int(self.sdk3.AT_HNDL_SYSTEM, "DeviceCount")
-        if device_count == 0:
-            raise ConnectionError("No devices found.")
-        # select device
-        for i in range(device_count):
-            temp = self.sdk3.open(i)
-            serial = self.sdk3.get_string(temp, "SerialNumber")
-            if serial == self._config["serial"]:
-                self.hndl = temp
-                print("    Serial No   : ", serial)
-                break
-            self.sdk3.close(temp)
-        else:
-            raise ConnectionError(
-                r"device with serial number {0} not found".format(self._config["serial"])
-            )
-
-        self.features = {}
-        for k, v in features.specs.items():
-            if "n" in v.availability:
-                try:
-                    self.features[k] = features.obj_from_spec(self.sdk3, self.hndl, v)
-                except NotImplementedError:
-                    self.logger.debug(
-                        f"feature {v.sdk_name} is supposed to be implemented, but is not!"
-                    )
-                    pass
-                else:
-                    self.logger.debug(
-                        f"{k}, {self.features[k].is_implemented}, {self.features[k].is_readonly}"
-                    )
-
-        # only need to poll once
-        self.sensor_info = {}
-        for k in [
-                "sensor_width", "sensor_height", "pixel_height", "pixel_width"
-            ]:
-            try:
-                self.sensor_info[k] = self.features[k].get()
-            except ATCoreException as err:
-                pass
-        self.logger.debug(self.sensor_info)
 
         # implement config, state features
         self.features["spurious_noise_filter"].set(self._config["spurious_noise_filter"])
@@ -161,43 +114,6 @@ class AndorNeo(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             sensor_temp = self.features["sensor_temperature"].get()
             diff = float(set_temp) - sensor_temp
         self.logger.info("Sensor temp is stabilized.")
-
-    async def _measure(self):
-        image_size_bytes = self.features["image_size_bytes"].get()
-        buf = np.empty((image_size_bytes,), dtype='B')
-        timeout = self.features["exposure_time"].get() * 2e3
-        # 2e3: seconds to ms (1e3), plus wait twice as long as acquisition before timeout
-        try:
-            self.sdk3.queue_buffer(self.hndl, buf.ctypes.data, image_size_bytes)
-            # acquire frame
-            self.features["acquisition_start"]()
-            self.logger.debug("Waiting on buffer")
-            (returnedBuf, returnedSize) = await self._loop.run_in_executor(
-                None, self.sdk3.wait_buffer, self.hndl, timeout
-            )
-            self.logger.debug("Done waiting on buffer")
-            self.features["acquisition_stop"]()
-        except ATCoreException as err:
-            self.logger.error(f"SDK3 Error {err}")
-
-        class ArrayInterface:
-            def __init__(self, buf, shape, strides):
-                self.__array_interface__ = {
-                    "shape": shape,
-                    "typestr": "<u2",
-                    "data": buf,
-                    "strides": strides,
-                    "version": 3,
-                }
-        stride = self.features["aoi_stride"].get()
-        pixels = np.array(ArrayInterface(buf.data, self._channel_shapes["image"], (stride, 2)))
-        self.logger.debug(f"{pixels.size}, {np.prod(self._channel_shapes['image'])}")
-        pixels = np.ascontiguousarray(pixels)
-        arrayinterface = pixels.__array_interface__
-        arrayinterface["data"] = pixels.tobytes()
-        self.sdk3.flush(self.hndl)
-
-        return {"image": arrayinterface}
 
     def get_sensor_info(self):
         return self.sensor_info

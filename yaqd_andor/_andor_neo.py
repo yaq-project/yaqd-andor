@@ -114,25 +114,3 @@ class AndorNeo(_andor_sdk3.AndorSDK3):
             sensor_temp = self.features["sensor_temperature"].get()
             diff = float(set_temp) - sensor_temp
         self.logger.info("Sensor temp is stabilized.")
-
-    def get_sensor_info(self):
-        return self.sensor_info
-
-    def get_feature_names(self) -> List[str]:
-        return [v.sdk_name for v in self.features.values()]
-
-    def get_feature_value(self, k:str) -> Union[int, bool, float, str]:
-        feature = self.features[k]
-        return feature.get()
-
-    def get_feature_options(self, k:str) -> List[str]:  # -> List[Union[str, float, int]]:
-        feature = self.features[k]
-        # if isinstance(feature, features.SDKEnum):
-        return feature.options()
-        # elif isinstance(feature, features.SDKFloat) or isinstance(feature, features.SDKInt):
-        #     return [feature.min(), feature.max()]
-        # else:
-        #     raise ValueError(f"feature {feature} is of type {type(feature)}, not `SDKEnum`.")
-
-    def close(self):
-        self.sdk3.close(self.hndl)

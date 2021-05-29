@@ -32,6 +32,8 @@ entry:
   script:
     - yaqd-andor-neo --version
     - yaqd-andor-neo -h
+    - yaqd-andor-simcam --version
+    - yaqd-andor-simcam -h
 traits:
   stage: test
   script:

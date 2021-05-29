@@ -1,6 +1,6 @@
 import sys
 import os
-os.chdir(os.path.dirname(__file__))
+import pathlib
 
 if sys.version < '3':
     import codecs
@@ -113,7 +113,7 @@ class ATCore(object):
     AT_HNDL_SYSTEM = 1
 
     def __init__(self):
-        from cffi import FFI
+        from cffi import FFI  # type: ignore
         self.ffi = FFI()
         self.ffi.set_unicode(True)
         self.C = self.ffi.cdef("""
@@ -174,7 +174,12 @@ class ATCore(object):
         int AT_Flush(AT_H Hndl);
 
         """)
-        self.lib = self.ffi.verify('#include "atcore.h"', include_dirs=["."], libraries=["atcore"])
+        dirs = pathlib.Path(__file__).parent
+        self.lib = self.ffi.verify(
+            '#include "atcore.h"',
+            include_dirs=[str(dirs)],
+            libraries=["atcore"]
+        )
 
         self.handle_return(self.lib.AT_InitialiseLibrary())
 

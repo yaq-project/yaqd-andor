@@ -1,13 +1,12 @@
 {
     "config": {
-        "aoi_binning": {
-            "default": "1x1",
-            "doc": "Option to bin pixels both horizontally and vertically. \\\n    Default is no binning (1x1).",
-            "type": "binning_modes"
+        "aoi_hbin": {
+            "default": 1,
+            "type": "int"
         },
         "aoi_height": {
             "default": null,
-            "doc": "Specify the number of pixel rows to acquire. \\\n    Can be no larger than `sensor_height` - (`aoi_top` - 1). \\\n    Defaults to use all rows starting from `aoi_top`. \\\n    ",
+            "doc": "Specify the pixel height. \\\n    Can be no larger than sensor_height - (aoi_top - 1). \\\n    Default is the full height of camera. \\\n    Units of super-pixels. \\\n    ",
             "type": [
                 "null",
                 "int"
@@ -15,7 +14,7 @@
         },
         "aoi_left": {
             "default": null,
-            "doc": "Specify left-most pixel column of the AOI. \\\n    Defaults to the full left of the camera sensor (column 1). \\\n    ",
+            "doc": "Specify left most coordinate of AOI. \\\n    Defaults to the full left of the sensor (1). \\\n    Units of pixels. \\\n    ",
             "type": [
                 "null",
                 "int"
@@ -23,23 +22,27 @@
         },
         "aoi_top": {
             "default": null,
-            "doc": "Specify the top-most pixel row of the AOI. \\\n    Defaults to the top of the camera sensor (1). \\\n    ",
+            "doc": "Specify top coordinate (units of pixels). \\\n    Defaults to the top of the camera sensor (1). \\\n    Units of pixels. \\\n    ",
             "type": [
                 "null",
                 "int"
             ]
         },
+        "aoi_vbin": {
+            "default": 1,
+            "type": "int"
+        },
         "aoi_width": {
             "default": null,
-            "doc": "Specify the number of pixel columns to acquire. \\\n    Can be no larger than `sensor_width` - (`aoi_left` - 1). \\\n    Defaults to use all columns starting from `aoi_left`. \\\n    ",
+            "doc": "Specify width of AOI, in units of super-pixels. \\\n    Defaults to the full width of sensor.\n    ",
             "type": [
                 "null",
                 "int"
             ]
         },
         "electronic_shuttering_mode": {
-            "default": "Rolling",
-            "doc": "'Rolling' or 'Global'",
+            "default": "rolling",
+            "doc": "'rolling' or 'global'",
             "type": "shuttering_modes"
         },
         "enable": {
@@ -50,7 +53,7 @@
         },
         "exposure_time": {
             "default": 1,
-            "doc": "Camera exposure time (seconds).",
+            "doc": "Requested Exposure time, in seconds.",
             "type": "float"
         },
         "log_level": {
@@ -93,7 +96,7 @@
             ]
         },
         "model": {
-            "default": "neo",
+            "default": "simcam",
             "origin": "is-daemon",
             "type": [
                 "null",
@@ -105,11 +108,6 @@
             "origin": "is-daemon",
             "type": "int"
         },
-        "sensor_cooling": {
-            "default": false,
-            "doc": "Set whether or not sensor will be cooled.",
-            "type": "boolean"
-        },
         "serial": {
             "default": null,
             "doc": "Serial number for the particular device represented by the daemon",
@@ -118,19 +116,6 @@
                 "null",
                 "string"
             ]
-        },
-        "simple_preamp_gain_control": {
-            "default": "16-bit (low noise & high well capacity)",
-            "type": "preamp_gain_options"
-        },
-        "spurious_noise_filter": {
-            "default": false,
-            "doc": "Corrects high value pixels using mean of surrounding pixels.",
-            "type": "boolean"
-        },
-        "static_blemish_correction": {
-            "default": false,
-            "type": "boolean"
         }
     },
     "doc": "",
@@ -353,8 +338,9 @@
             "response": "null"
         }
     },
-    "protocol": "andor-neo",
+    "protocol": "andor-simcam",
     "requires": [],
+    "state": {},
     "traits": [
         "has-mapping",
         "has-measure-trigger",
@@ -363,30 +349,10 @@
     ],
     "types": [
         {
-            "name": "preamp_gain_options",
-            "symbols": [
-                "12-bit (high well capacity)",
-                "12-bit (low noise)",
-                "16-bit (low noise & high well capacity)"
-            ],
-            "type": "enum"
-        },
-        {
             "name": "shuttering_modes",
             "symbols": [
-                "Rolling",
-                "Global"
-            ],
-            "type": "enum"
-        },
-        {
-            "name": "binning_modes",
-            "symbols": [
-                "1x1",
-                "2x2",
-                "3x3",
-                "4x4",
-                "8x8"
+                "rolling",
+                "global"
             ],
             "type": "enum"
         },

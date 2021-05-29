@@ -1,4 +1,4 @@
-protocol = "andor-neo"
+protocol = "andor-simcam"
 doc = ""
 traits = ["has-mapping", "has-measure-trigger", "is-sensor", "is-daemon"]
 
@@ -11,95 +11,68 @@ PyPI = "https://pypi.org/project/yaqd-andor"
 
 [[types]]
 type = "enum"
-name = "preamp_gain_options"
-symbols = [
-    "12-bit (high well capacity)",
-    "12-bit (low noise)",
-    "16-bit (low noise & high well capacity)"
-]
-
-[[types]]
-type = "enum"
 name = "shuttering_modes"
-symbols = ["Rolling", "Global"]
-
-[[types]]
-type = "enum"
-name = "binning_modes"
-symbols = ["1x1", "2x2", "3x3", "4x4", "8x8"]
+symbols = ["rolling", "global"]
 
 
 [config]
-
 [config.make]
 default = "andor"
 
 [config.model]
-default = "neo"
+default = "simcam"
 
-[config.spurious_noise_filter]
-type = "boolean"
-doc = "Corrects high value pixels using mean of surrounding pixels."
-default = false
+[config.aoi_hbin]
+type = "int"
+default = 1
 
-[config.static_blemish_correction]
-type = "boolean"
-default = false
-
-[config.sensor_cooling]
-type = "boolean"
-doc = "Set whether or not sensor will be cooled."
-default = false
-
-[config.aoi_binning]
-type = "binning_modes"
-doc = """Option to bin pixels both horizontally and vertically. \\
-    Default is no binning (1x1)."""
-default = "1x1"
+[config.aoi_vbin]
+type = "int"
+default = 1
 
 [config.aoi_width]
 type = ["null", "int"]
-doc = """Specify the number of pixel columns to acquire. \\
-    Can be no larger than `sensor_width` - (`aoi_left` - 1). \\
-    Defaults to use all columns starting from `aoi_left`. \\
+doc = """Specify width of AOI, in units of super-pixels. \\
+    Defaults to the full width of sensor.
     """
 default = "__null__"
 
 [config.aoi_left]
 type = ["null", "int"]
-doc = """Specify left-most pixel column of the AOI. \\
-    Defaults to the full left of the camera sensor (column 1). \\
+doc = """Specify left most coordinate of AOI. \\
+    Defaults to the full left of the sensor (1). \\
+    Units of pixels. \\
     """
 default = "__null__"
 
 [config.aoi_height]
 type = ["null", "int"]
-doc = """Specify the number of pixel rows to acquire. \\
-    Can be no larger than `sensor_height` - (`aoi_top` - 1). \\
-    Defaults to use all rows starting from `aoi_top`. \\
+doc = """Specify the pixel height. \\
+    Can be no larger than sensor_height - (aoi_top - 1). \\
+    Default is the full height of camera. \\
+    Units of super-pixels. \\
     """
 default = "__null__"
 
 [config.aoi_top]
 type = ["null", "int"]
-doc = """Specify the top-most pixel row of the AOI. \\
+doc = """Specify top coordinate (units of pixels). \\
     Defaults to the top of the camera sensor (1). \\
+    Units of pixels. \\
     """
 default = "__null__"
 
 [config.electronic_shuttering_mode]
 type = "shuttering_modes"
-doc = "'Rolling' or 'Global'"
-default = "Rolling"
-
-[config.simple_preamp_gain_control]
-type = "preamp_gain_options"
-default = "16-bit (low noise & high well capacity)"
+doc = "'rolling' or 'global'"
+default = "rolling"
 
 [config.exposure_time]
 type = "float"
-doc = "Camera exposure time (seconds)."
+doc = "Requested Exposure time, in seconds."
 default = 1
+
+[state]
 
 [messages]
 

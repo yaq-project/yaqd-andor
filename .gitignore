@@ -51,12 +51,10 @@ coverage.xml
 
 # vim
 *.sw?
-yaqd_andor/atblkbx.dll
-yaqd_andor/atcl_bitflow.dll
-yaqd_andor/atcore.dll
-yaqd_andor/atdevregcam.dll
-yaqd_andor/atusb_libusb10.dll
-yaqd_andor/atcore.lib
-yaqd_andor/atcore.h
-yaqd_andor/atdevsimcam.dll
+
+# C library stuff
+*.dll
+*.lib
+*.h
+
 .vscode/settings.json

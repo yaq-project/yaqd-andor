@@ -1,57 +1,10 @@
 {
     "config": {
-        "aoi_binning": {
-            "default": "1x1",
-            "doc": "Option to bin pixels both horizontally and vertically. \\\n    Default is no binning (1x1).",
-            "type": "binning_modes"
-        },
-        "aoi_height": {
-            "default": null,
-            "doc": "Specify the number of pixel rows to acquire. \\\n    Can be no larger than `sensor_height` - (`aoi_top` - 1). \\\n    Defaults to use all rows starting from `aoi_top`. \\\n    ",
-            "type": [
-                "null",
-                "int"
-            ]
-        },
-        "aoi_left": {
-            "default": null,
-            "doc": "Specify left-most pixel column of the AOI. \\\n    Defaults to the full left of the camera sensor (column 1). \\\n    ",
-            "type": [
-                "null",
-                "int"
-            ]
-        },
-        "aoi_top": {
-            "default": null,
-            "doc": "Specify the top-most pixel row of the AOI. \\\n    Defaults to the top of the camera sensor (1). \\\n    ",
-            "type": [
-                "null",
-                "int"
-            ]
-        },
-        "aoi_width": {
-            "default": null,
-            "doc": "Specify the number of pixel columns to acquire. \\\n    Can be no larger than `sensor_width` - (`aoi_left` - 1). \\\n    Defaults to use all columns starting from `aoi_left`. \\\n    ",
-            "type": [
-                "null",
-                "int"
-            ]
-        },
-        "electronic_shuttering_mode": {
-            "default": "Rolling",
-            "doc": "'Rolling' or 'Global'",
-            "type": "shuttering_modes"
-        },
         "enable": {
             "default": true,
             "doc": "Disable this daemon. The kind entry-point will not attempt to start this daemon.",
             "origin": "is-daemon",
             "type": "boolean"
-        },
-        "exposure_time": {
-            "default": 1,
-            "doc": "Camera exposure time (seconds).",
-            "type": "float"
         },
         "log_level": {
             "default": "info",
@@ -85,7 +38,7 @@
             "type": "boolean"
         },
         "make": {
-            "default": "andor",
+            "default": null,
             "origin": "is-daemon",
             "type": [
                 "null",
@@ -93,7 +46,7 @@
             ]
         },
         "model": {
-            "default": "neo",
+            "default": null,
             "origin": "is-daemon",
             "type": [
                 "null",
@@ -105,11 +58,6 @@
             "origin": "is-daemon",
             "type": "int"
         },
-        "sensor_cooling": {
-            "default": false,
-            "doc": "Set whether or not sensor will be cooled.",
-            "type": "boolean"
-        },
         "serial": {
             "default": null,
             "doc": "Serial number for the particular device represented by the daemon",
@@ -118,19 +66,6 @@
                 "null",
                 "string"
             ]
-        },
-        "simple_preamp_gain_control": {
-            "default": "16-bit (low noise & high well capacity)",
-            "type": "preamp_gain_options"
-        },
-        "spurious_noise_filter": {
-            "default": false,
-            "doc": "Corrects high value pixels using mean of surrounding pixels.",
-            "type": "boolean"
-        },
-        "static_blemish_correction": {
-            "default": false,
-            "type": "boolean"
         }
     },
     "doc": "",
@@ -205,41 +140,9 @@
             "request": [],
             "response": "string"
         },
-        "get_feature_names": {
-            "doc": "Return a list of available SDK features. \\\n    Different camera types have different available features. \\\n    All features names are snake case (e.g. `sensor_temperature`), \\\n    distinct from Pascal case (e.g. SensorTemperature) of the direct SDK. \\\n    ",
+        "get_heatsink_temperature": {
             "request": [],
-            "response": {
-                "items": "string",
-                "type": "array"
-            }
-        },
-        "get_feature_options": {
-            "doc": "Return enumerated options for specified feature name (snake case). \\\n    If specified feature is not type `enum`, raises error.",
-            "request": [
-                {
-                    "name": "feature_name",
-                    "type": "string"
-                }
-            ],
-            "response": {
-                "items": "string",
-                "type": "array"
-            }
-        },
-        "get_feature_value": {
-            "doc": "Reads the current value for the specified (snake case) feature name.",
-            "request": [
-                {
-                    "name": "feature_name",
-                    "type": "string"
-                }
-            ],
-            "response": [
-                "string",
-                "int",
-                "float",
-                "boolean"
-            ]
+            "response": "float"
         },
         "get_mapping_id": {
             "doc": "Mapping ID. This integer increments every time the mapping is updated. Clients can safely check this id to verify that their cached mappings are correct, if desired.",
@@ -293,16 +196,25 @@
                 "type": "int"
             }
         },
+        "get_pixel_height": {
+            "request": [],
+            "response": "null"
+        },
+        "get_pixel_width": {
+            "request": [],
+            "response": "null"
+        },
         "get_sensor_info": {
-            "doc": "Return a dictionary containing information about the sensor.",
+            "doc": "Return a dictionary containing key information about the sensor.",
             "request": [],
             "response": {
                 "type": "map",
-                "values": [
-                    "int",
-                    "float"
-                ]
+                "values": "string"
             }
+        },
+        "get_sensor_temperature": {
+            "request": [],
+            "response": "null"
         },
         "get_state": {
             "doc": "Get version of the running daemon",
@@ -353,8 +265,20 @@
             "response": "null"
         }
     },
-    "protocol": "andor-neo",
+    "protocol": "andor-sona",
     "requires": [],
+    "state": {
+        "accumulate_count": {
+            "default": 1,
+            "doc": "Number of images that should be summed to obtain each image.",
+            "type": "int"
+        },
+        "exposure_time": {
+            "default": 1,
+            "doc": "Requested Exposure time, in seconds.",
+            "type": "float"
+        }
+    },
     "traits": [
         "has-mapping",
         "has-measure-trigger",
@@ -367,26 +291,7 @@
             "symbols": [
                 "12-bit (high well capacity)",
                 "12-bit (low noise)",
-                "16-bit (low noise & high well capacity)"
-            ],
-            "type": "enum"
-        },
-        {
-            "name": "shuttering_modes",
-            "symbols": [
-                "Rolling",
-                "Global"
-            ],
-            "type": "enum"
-        },
-        {
-            "name": "binning_modes",
-            "symbols": [
-                "1x1",
-                "2x2",
-                "3x3",
-                "4x4",
-                "8x8"
+                "16-bit (low noise and high well capacity)"
             ],
             "type": "enum"
         },

@@ -32,12 +32,10 @@ symbols = ["1x1", "2x2", "3x3", "4x4", "8x8"]
 [config]
 
 [config.make]
-type = "string"
-default = "Andor"
+default = "andor"
 
 [config.model]
-type = "string"
-default = "Neo"
+default = "neo"
 
 [config.spurious_noise_filter]
 type = "boolean"

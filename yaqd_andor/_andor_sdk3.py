@@ -7,7 +7,7 @@ import os
 
 from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
 from typing import Dict, Any, List, Union
-from . import atcore 
+from . import atcore
 from . import features
 
 ATCore = atcore.ATCore
@@ -15,7 +15,6 @@ ATCoreException = atcore.ATCoreException
 
 
 class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
-
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
         self._channel_names = ["image"]
@@ -26,7 +25,7 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         initial_cwd = os.getcwd()
         try:
             os.chdir(os.path.dirname(__file__))
-            self.sdk = ATCore() # Initialise SDK3
+            self.sdk = ATCore()  # Initialise SDK3
         finally:
             os.chdir(initial_cwd)
         # find devices
@@ -65,9 +64,7 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                     )
 
         self.sensor_info = {}
-        for k in [
-                "sensor_width", "sensor_height", "pixel_height", "pixel_width"
-            ]:
+        for k in ["sensor_width", "sensor_height", "pixel_height", "pixel_width"]:
             try:
                 self.sensor_info[k] = self.features[k].get()
             except ATCoreException as err:
@@ -87,7 +84,7 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
 
     async def _measure(self):
         image_size_bytes = self.features["image_size_bytes"].get()
-        buf = np.empty((image_size_bytes,), dtype='B')
+        buf = np.empty((image_size_bytes,), dtype="B")
         timeout = self.features["exposure_time"].get() * 2e3
         # 2e3: seconds to ms (1e3), plus wait twice as long as acquisition before timeout
         try:
@@ -112,12 +109,13 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                     "strides": strides,
                     "version": 3,
                 }
+
         stride = self.features["aoi_stride"].get()
         pixels = np.array(ArrayInterface(buf.data, self._channel_shapes["image"], (stride, 2)))
         pixels = np.lib.stride_tricks.as_strided(
             np.frombuffer(buf, dtype=np.uint16),
             shape=self._channel_shapes["image"],
-            strides=(stride, 2)
+            strides=(stride, 2),
         )
         self.logger.debug(f"{pixels.size}, {np.prod(self._channel_shapes['image'])}")
         pixels = np.ascontiguousarray(pixels)
@@ -133,11 +131,11 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
     def get_feature_names(self) -> List[str]:
         return [v.sdk_name for v in self.features.values()]
 
-    def get_feature_value(self, k:str) -> Union[int, bool, float, str]:
+    def get_feature_value(self, k: str) -> Union[int, bool, float, str]:
         feature = self.features[k]
         return feature.get()
 
-    def get_feature_options(self, k:str) -> List[str]:  # -> List[Union[str, float, int]]:
+    def get_feature_options(self, k: str) -> List[str]:  # -> List[Union[str, float, int]]:
         feature = self.features[k]
         # if isinstance(feature, features.SDKEnum):
         return feature.options()

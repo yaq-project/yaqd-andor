@@ -6,7 +6,7 @@ from time import sleep
 
 from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
 from typing import Dict, Any, List, Union
-from . import atcore 
+from . import atcore
 from . import features
 from . import _andor_sdk3
 
@@ -32,9 +32,7 @@ class AndorNeo(_andor_sdk3.AndorSDK3):
 
     def _set_aoi(self):
         aoi_keys = ["aoi_binning", "aoi_width", "aoi_left", "aoi_height", "aoi_top"]
-        binning, width, left, height, top = [
-            self._config[k] for k in aoi_keys
-        ]
+        binning, width, left, height, top = [self._config[k] for k in aoi_keys]
         binning = int(binning[0])  # equal xy binning, so only need 1 index
 
         # check if aoi is within sensor limits
@@ -54,8 +52,8 @@ class AndorNeo(_andor_sdk3.AndorSDK3):
         height //= binning
 
         self.logger.debug(f"{max_width}, {max_height}, {binning}, {width}, {height}, {top}")
-        w_extent = width * binning + (left-1)
-        h_extent = height * binning  + (top-1)
+        w_extent = width * binning + (left - 1)
+        h_extent = height * binning + (top - 1)
         if w_extent > max_width:
             raise ValueError(f"height extends over {w_extent} pixels, max is {max_width}")
         if h_extent > max_height:
@@ -73,16 +71,13 @@ class AndorNeo(_andor_sdk3.AndorSDK3):
         }
         x_ai = np.arange(left, left + width * binning, binning)[None, :]
         y_ai = np.arange(top, top + height * binning, binning)[:, None]
-        
+
         x_index = x_ai.__array_interface__
         x_index["data"] = x_ai.tobytes()
         y_index = y_ai.__array_interface__
         y_index["data"] = y_ai.tobytes()
-        
-        self._mappings = {
-            "x_index": x_index,
-            "y_index": y_index
-        }
+
+        self._mappings = {"x_index": x_index, "y_index": y_index}
 
         for k in ["aoi_height", "aoi_width", "aoi_top", "aoi_left", "aoi_binning"]:
             self.logger.debug(f"{k}: {self.features[k].get()}")
@@ -105,7 +100,7 @@ class AndorNeo(_andor_sdk3.AndorSDK3):
         set_temp = self.features["temperature_control"].get()
         sensor_temp = self.features["sensor_temperature"].get()
         diff = float(set_temp) - sensor_temp
-        while abs(diff) > 1.:
+        while abs(diff) > 1.0:
             self.logger.info(
                 f"Sensor is cooling.  Target: {set_temp} C.  Current: {sensor_temp:0.2f} C."
             )

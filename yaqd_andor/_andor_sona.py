@@ -6,7 +6,7 @@ import os
 
 from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
 from typing import Dict, Any, List
-from . import atcore 
+from . import atcore
 from . import features
 
 ATCore = atcore.ATCore
@@ -22,7 +22,7 @@ class AndorSona(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         initial_cwd = os.getcwd()
         try:
             os.chdir(os.path.dirname(__file__))
-            self.sdk = ATCore() # Initialise SDK3
+            self.sdk = ATCore()  # Initialise SDK3
         finally:
             os.chdir(initial_cwd)
         # find devices
@@ -35,7 +35,7 @@ class AndorSona(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             serial = self.sdk3.get_string(temp, "SerialNumber")
             if serial == self._config["serial"]:
                 self.hndl = temp
-                print("    Serial No   : ",serial)
+                print("    Serial No   : ", serial)
                 break
             self.sdk3.close(temp)
         else:
@@ -51,7 +51,7 @@ class AndorSona(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
 
     async def _measure(self):
         imageSizeBytes = self.sdk3.get_int(self.hndl, "ImageSizeBytes")
-        buf = np.empty((imageSizeBytes,), dtype='B')
+        buf = np.empty((imageSizeBytes,), dtype="B")
         try:
             self.sdk3.queue_buffer(self.hndl, buf.ctypes.data, imageSizeBytes)
             # acquire frame
@@ -60,7 +60,7 @@ class AndorSona(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             (returnedBuf, returnedSize) = self.sdk3.wait_buffer(self.hndl)
             self.logger.debug("Done waiting on buffer")
             self.logger.debug(f"{imageSizeBytes}, {returnedSize}")
-            self.sdk3.command(self.hndl,"AcquisitionStop")
+            self.sdk3.command(self.hndl, "AcquisitionStop")
         except ATCoreException as err:
             self.logger.error(f"SDK3 Error {err}")
 
@@ -73,6 +73,7 @@ class AndorSona(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                     "strides": strides,
                     "version": 3,
                 }
+
         stride = self.sdk3.get_int(self.hndl, "AOIStride")
         pixels = np.array(ArrayInterface(buf.data, self._channel_shapes["image"], (stride, 2)))
         self.logger.debug(f"{pixels.size}, {np.prod(self._channel_shapes['image'])}")

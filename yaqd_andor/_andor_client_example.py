@@ -32,18 +32,17 @@ cam = yaqc.Client(port)
 fig, (ax) = plt.subplots()
 timer = fig.canvas.new_timer(interval=200)
 
+
 @timer.add_callback
 def update():
     measure_and_plot()
+
 
 cam_map = cam.get_mappings()
 xm = np.array(cam_map["x_index"])
 ym = np.array(cam_map["y_index"])
 shape = cam.get_channel_shapes()["image"]
-im = ax.imshow(
-    np.zeros(shape),
-    extent=mapping_to_extent(xm, ym)
-)
+im = ax.imshow(np.zeros(shape), extent=mapping_to_extent(xm, ym))
 cbar = fig.colorbar(im)
 measure_and_plot()
 timer.start()

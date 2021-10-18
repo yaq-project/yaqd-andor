@@ -5,7 +5,7 @@
 [![yaq](https://img.shields.io/badge/framework-yaq-orange)](https://yaq.fyi/)
 [![black](https://img.shields.io/badge/code--style-black-black)](https://black.readthedocs.io/)
 [![ver](https://img.shields.io/badge/calver-YYYY.0M.MICRO-blue)](https://calver.org/)
-[![log](https://img.shields.io/badge/change-log-informational)](https://gitlab.com/yaq/yaqd-andor/-/blob/master/CHANGELOG.md)
+[![log](https://img.shields.io/badge/change-log-informational)](https://gitlab.com/yaq/yaqd-andor/-/blob/main/CHANGELOG.md)
 
 Daemons for [Andor](https://andor.oxinst.com/?gclid=CjwKCAiA4rGCBhAQEiwAelVtiwSRE1kz3nD1g-x6c1ni5svwLkqg7OMvJE5n0CIB8shS2Nnnvrgy4BoCdJcQAvD_BwE) cameras
 

@@ -38,7 +38,7 @@
             "type": "boolean"
         },
         "make": {
-            "default": null,
+            "default": "andor",
             "origin": "is-daemon",
             "type": [
                 "null",
@@ -46,7 +46,7 @@
             ]
         },
         "model": {
-            "default": null,
+            "default": "sona",
             "origin": "is-daemon",
             "type": [
                 "null",
@@ -140,10 +140,6 @@
             "request": [],
             "response": "string"
         },
-        "get_heatsink_temperature": {
-            "request": [],
-            "response": "float"
-        },
         "get_mapping_id": {
             "doc": "Mapping ID. This integer increments every time the mapping is updated. Clients can safely check this id to verify that their cached mappings are correct, if desired.",
             "origin": "has-mapping",
@@ -182,9 +178,9 @@
             "response": {
                 "type": "map",
                 "values": [
+                    "int",
                     "double",
-                    "ndarray",
-                    "int"
+                    "ndarray"
                 ]
             }
         },
@@ -195,26 +191,6 @@
             "response": {
                 "type": "int"
             }
-        },
-        "get_pixel_height": {
-            "request": [],
-            "response": "null"
-        },
-        "get_pixel_width": {
-            "request": [],
-            "response": "null"
-        },
-        "get_sensor_info": {
-            "doc": "Return a dictionary containing key information about the sensor.",
-            "request": [],
-            "response": {
-                "type": "map",
-                "values": "string"
-            }
-        },
-        "get_sensor_temperature": {
-            "request": [],
-            "response": "null"
         },
         "get_state": {
             "doc": "Get version of the running daemon",
@@ -286,15 +262,6 @@
         "is-sensor"
     ],
     "types": [
-        {
-            "name": "preamp_gain_options",
-            "symbols": [
-                "12-bit (high well capacity)",
-                "12-bit (low noise)",
-                "16-bit (low noise and high well capacity)"
-            ],
-            "type": "enum"
-        },
         {
             "fields": [
                 {

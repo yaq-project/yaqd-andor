@@ -9,12 +9,6 @@ bugtracker = "https://gitlab.com/yaq/yaqd-andor/-/issues"
 [installation]
 PyPI = "https://pypi.org/project/yaqd-andor"
 
-[[types]]
-type = "enum"
-name = "shuttering_modes"
-symbols = ["rolling", "global"]
-
-
 [config]
 [config.make]
 default = "andor"
@@ -62,39 +56,74 @@ doc = """Specify top coordinate (units of pixels). \\
     """
 default = "__null__"
 
-[config.electronic_shuttering_mode]
-type = "shuttering_modes"
-doc = "'rolling' or 'global'"
-default = "rolling"
-
-[config.exposure_time]
-type = "float"
-doc = "Requested Exposure time, in seconds."
-default = 1
 
 [state]
 
+exposure_time.type = "float"
+exposure_time.default = 1.0
+pixel_readout_rate.type = "string"
+pixel_readout_rate.default = "550 MHz"
+electronic_shuttering_mode.type = "string"
+electronic_shuttering_mode.default = "Rolling"
+
 [messages]
 
-[messages.get_sensor_info]
-doc = "Return a dictionary containing information about the sensor."
-response = {'type'= 'map', 'values'= ["int", "float"]}
+get_sensor_info.doc = "Return a dictionary containing information about the sensor."
+get_sensor_info.response = {'type'= 'map', 'values'= ["int", "float"]}
 
-[messages.get_feature_names]
-doc = """Return a list of available SDK features. \\
-    Different camera types have different available features. \\
-    All features names are snake case (e.g. `sensor_temperature`), \\
-    distinct from Pascal case (e.g. SensorTemperature) of the direct SDK. \\
-    """
-response = {"type"='array', "items"="string"}
+# --- generic features -------------------------------------------------------------
 
-[messages.get_feature_value]
-doc = "Reads the current value for the specified (snake case) feature name."
-request = [{"name"="feature_name", "type"="string"}]
-response = ["string", "int", "float", "boolean"]
+get_feature_names.response = {"type"='array', "items"="string"}
+get_feature_names.doc =  "Return a list of available SDK features. All features names are snake case (e.g. `sensor_temperature`), distinct from Pascal case (e.g. SensorTemperature) of the direct SDK."
 
-[messages.get_feature_options]
-doc = """Return enumerated options for specified feature name (snake case). \\
-    If specified feature is not type `enum`, raises error."""
-request = [{"name"="feature_name", "type"="string"}]
-response = {"type"="array", "items"="string"}
+get_feature_value.doc = "Reads the current value for the specified (snake case) feature name."
+get_feature_value.request = [{"name"="feature_name", "type"="string"}]
+get_feature_value.response = ["string", "int", "float", "boolean"]
+
+get_feature_options.doc = "Return enumerated options for specified feature name (snake case). If specified feature is not type `enum`, raises error."
+get_feature_options.request = [{"name"="feature_name", "type"="string"}]
+get_feature_options.response = {"type"="array", "items"="string"}
+
+get_feature_limits.request = [{"name"="feature_name", "type"="string"}]
+get_feature_limits.response = {"type"="array", "items"="float"}
+
+# --- specific features ------------------------------------------------------
+
+set_exposure_time.request = [{"name"="value", "type"="float"}]
+get_exposure_time.response = "float"
+get_exposure_time_limits.response = {"type"="array", "items"="float"}
+
+set_pixel_readout_rate.request = [{"name"="value", "type"="string"}]
+get_pixel_readout_rate.response = "string"
+get_pixel_readout_rate_options.response = {"type"="array", "items"="string"}
+
+set_electronic_shuttering_mode.request = [{"name"="value", "type"="string"}]
+get_electronic_shuttering_mode.response = "string"
+get_electronic_shuttering_mode_options.response = {"type"="array", "items"="string"}
+
+[properties]
+
+[properties.exposure_time]
+setter = "set_exposure_time"
+getter = "get_exposure_time"
+limits_getter = "get_exposure_time_limits"
+control_kind = "hinted"
+record_kind = "metadata"
+type = "double"
+
+[properties.readout_rate]
+setter = "set_pixel_readout_rate"
+getter = "get_pixel_readout_rate"
+options_getter = "get_pixel_readout_rate_options"
+control_kind = "normal"
+record_kind = "metadata"
+type = "string"
+
+[properties.shuttering_mode]
+setter = "set_electronic_shuttering_mode"
+getter = "get_electronic_shuttering_mode"
+options_getter = "get_electronic_shuttering_mode_options"
+control_kind = "normal"
+record_kind = "metadata"
+type = "string"
+

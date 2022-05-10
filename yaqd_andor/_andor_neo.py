@@ -16,17 +16,17 @@ ATCoreException = atcore.ATCoreException
 
 class AndorNeo(_andor_sdk3.AndorSDK3):
     _kind = "andor-neo"
+    state_features = [
+        "exposure_time",
+        "pixel_readout_rate",
+        "electronic_shuttering_mode",
+        "simple_preamp_gain_control",
+        "spurious_noise_filter",
+        "static_blemish_correction",
+    ]
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
-
-        # implement config, state features
-        self.features["spurious_noise_filter"].set(self._config["spurious_noise_filter"])
-        self.features["static_blemish_correction"].set(self._config["static_blemish_correction"])
-        self.features["electronic_shuttering_mode"].set(self._config["electronic_shuttering_mode"])
-        self.features["simple_preamp_gain_control"].set(self._config["simple_preamp_gain_control"])
-        self.features["exposure_time"].set(self._config["exposure_time"])
-        # aoi currently in config, so only need to run on startup
         self._set_aoi()
         self._set_temperature()
 

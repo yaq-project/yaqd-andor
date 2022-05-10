@@ -14,11 +14,11 @@ ATCoreException = atcore.ATCoreException
 
 class AndorSimcam(_andor_sdk3.AndorSDK3):
     _kind = "andor-simcam"
+    # state_features also have avro messages for setting, reading, options, etc.
+    state_features = ["exposure_time", "pixel_readout_rate", "electronic_shuttering_mode"]
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
-        # implement config, state features
-        self.features["exposure_time"].set(self._config["exposure_time"])
         self._set_aoi()
 
     def _set_aoi(self):
@@ -51,15 +51,15 @@ class AndorSimcam(_andor_sdk3.AndorSDK3):
         if h_extent > max_height:
             raise ValueError(f"height extends over {h_extent} pixels, max is {max_height}")
 
-        try:
+        try:  # not writable
             self.features["aoi_hbin"].set(aoi_hbin)
             self.features["aoi_vbin"].set(aoi_vbin)
             self.features["aoi_width"].set(width)
             self.features["aoi_left"].set(left)
             self.features["aoi_height"].set(height)
             self.features["aoi_top"].set(top)
-        except:
-            pass
+        except Exception as e:
+            self.logger.info(e)
 
         # apply shape, mapping
         self._channel_shapes = {

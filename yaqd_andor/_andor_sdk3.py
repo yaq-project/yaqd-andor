@@ -2,11 +2,10 @@ __all__ = ["AndorSDK3"]
 
 import asyncio
 import numpy as np
-from time import sleep
 import os
 
 from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
-from typing import Dict, Any, List, Union
+from typing import Any, List, Union
 from . import atcore
 from . import features
 
@@ -15,6 +14,8 @@ ATCoreException = atcore.ATCoreException
 
 
 class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
+    state_features:List[str] = []
+
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
         self._channel_names = ["image"]
@@ -38,7 +39,7 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             serial = self.sdk.get_string(temp, "SerialNumber")
             if serial == self._config["serial"]:
                 self.hndl = temp
-                print("    Serial No   : ", serial)
+                self.logger.info("    Serial No   : ", serial)
                 break
             self.sdk.close(temp)
         else:
@@ -68,24 +69,28 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             try:
                 self.sensor_info[k] = self.features[k].get()
             except ATCoreException as err:
-                pass
+                self.logger.error(err)
         self.logger.debug(self.sensor_info)
 
-        """
-        # implement config, state features
-        self.features["spurious_noise_filter"].set(self._config["spurious_noise_filter"])
-        self.features["static_blemish_correction"].set(self._config["static_blemish_correction"])
-        self.features["electronic_shuttering_mode"].set(self._config["electronic_shuttering_mode"])
-        self.features["simple_preamp_gain_control"].set(self._config["simple_preamp_gain_control"])
-        self.features["exposure_time"].set(self._config["exposure_time"])
-        # aoi currently in config, so only need to run on startup
-        self._set_aoi()
-        """
+        for key in self.state_features:
+            fi  = self.features[key]
+            dest = self._state[key]
+            if dest in ["", -1]:  # unassigned, poll for current value
+                self._state[key] = fi.get()
+            else:
+                fi.set(dest)
+            # generate avro properties
+            self.__setattr__(f"set_{key}", self.gen_setter(key))
+            self.__setattr__(f"get_{key}", self.gen_getter(key))
+            if self.features[key].type in ["int", "float"]:
+                self.__setattr__(f"get_{key}_limits", self.gen_limits_getter(key))
+            elif self.features[key].type in ["enumerated"]:
+                self.__setattr__(f"get_{key}_options", self.gen_options_getter(key))
 
     async def _measure(self):
         image_size_bytes = self.features["image_size_bytes"].get()
         buf = np.empty((image_size_bytes,), dtype="B")
-        timeout = self.features["exposure_time"].get() * 2e3
+        timeout = max(self.features["exposure_time"].get() * 2e3)
         # 2e3: seconds to ms (1e3), plus wait twice as long as acquisition before timeout
         try:
             self.sdk.queue_buffer(self.hndl, buf.ctypes.data, image_size_bytes)
@@ -129,7 +134,10 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         return self.sensor_info
 
     def get_feature_names(self) -> List[str]:
-        return [v.sdk_name for v in self.features.values()]
+        return [f"{k} -> {v.sdk_name}" for k,v in self.features.items()]
+
+    def get_feature_type(self, k: str):
+        return self.features[k].type
 
     def get_feature_value(self, k: str) -> Union[int, bool, float, str]:
         feature = self.features[k]
@@ -137,12 +145,46 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
 
     def get_feature_options(self, k: str) -> List[str]:  # -> List[Union[str, float, int]]:
         feature = self.features[k]
-        # if isinstance(feature, features.SDKEnum):
-        return feature.options()
-        # elif isinstance(feature, features.SDKFloat) or isinstance(feature, features.SDKInt):
-        #     return [feature.min(), feature.max()]
-        # else:
-        #     raise ValueError(f"feature {feature} is of type {type(feature)}, not `SDKEnum`.")
+        if feature.type == "enumerated":  # isinstance(feature, features.SDKEnum):
+            return feature.options()
+        else:
+            raise ValueError(f"feature {feature} is of type {feature.type}.  No options.")
+
+    def get_feature_limits(self, k: str) -> List[Union[float, int]]:
+        feature = self.features[k]
+        if feature.type in ["int", "float"]:
+            return [feature.min(), feature.max()]
+        raise ValueError(f"feature {feature} is of type {feature.type}.  No limits.")
 
     def close(self):
         self.sdk.close(self.hndl)
+
+    def _set_feature_by_key(self, key, val):
+        self._loop.create_task(self._aset_feature_by_key(key, val))
+
+    async def _aset_feature_by_key(self, key, val):
+        if self._busy:
+            await asyncio.wait_for(self._not_busy_sig.wait())
+        self.features[key].set(val)
+        self._state[key] = self.features[key].get()
+
+    def gen_setter(self, key):
+        def setter(val:Any):
+            self._set_feature_by_key(key, val)
+        return setter
+    
+    def gen_getter(self, key):
+        def getter() -> Any:
+            return self._state[key]
+        return getter
+
+    def gen_limits_getter(self, key):
+        def getter() -> List[float]:
+            return [self.features[key].min(), self.features[key].max()]
+        return getter
+    
+    def gen_options_getter(self, key):
+        def getter() -> str:
+            return self.features[key].options()
+        return getter
+

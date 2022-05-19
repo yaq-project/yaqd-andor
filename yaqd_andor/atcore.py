@@ -185,10 +185,7 @@ class ATCore(object):
         """
         )
         dirs = pathlib.Path(__file__).parent
-        self.lib = self.ffi.verify(
-            '#include "atcore.h"', include_dirs=[str(dirs)], libraries=["atcore"]
-        )
-
+        self.lib = self.ffi.dlopen("atcore")
         self.handle_return(self.lib.AT_InitialiseLibrary())
 
     def __del__(self):

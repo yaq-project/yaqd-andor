@@ -39,7 +39,7 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             serial = self.sdk.get_string(temp, "SerialNumber")
             if serial == self._config["serial"]:
                 self.hndl = temp
-                self.logger.info("    Serial No   : ", serial)
+                self.logger.info(f"    Serial No   : {serial}")
                 break
             self.sdk.close(temp)
         else:
@@ -55,10 +55,9 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
                 try:
                     self.features[k] = features.obj_from_spec(self.sdk, self.hndl, v)
                 except NotImplementedError:
-                    self.logger.info(
+                    self.logger.warn(
                         f"feature {v.sdk_name} is supposed to be implemented, but is not!"
                     )
-                    pass
                 else:
                     self.logger.debug(
                         f"{k}, {self.features[k].is_implemented}, {self.features[k].is_readonly}"
@@ -78,7 +77,10 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             if dest in ["", -1]:  # unassigned, poll for current value
                 self._state[key] = fi.get()
             else:
-                fi.set(dest)
+                try:  # some things we cannot write to, even though we should
+                    fi.set(dest)
+                except Exception as e:
+                    self.logger.error(e)
             # generate avro properties
             self.__setattr__(f"set_{key}", self.gen_setter(key))
             self.__setattr__(f"get_{key}", self.gen_getter(key))
@@ -90,7 +92,7 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
     async def _measure(self):
         image_size_bytes = self.features["image_size_bytes"].get()
         buf = np.empty((image_size_bytes,), dtype="B")
-        timeout = max(self.features["exposure_time"].get() * 2e3)
+        timeout = max(self.features["exposure_time"].get() * 2e3, 100)
         # 2e3: seconds to ms (1e3), plus wait twice as long as acquisition before timeout
         try:
             self.sdk.queue_buffer(self.hndl, buf.ctypes.data, image_size_bytes)
@@ -105,30 +107,17 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         except ATCoreException as err:
             self.logger.error(f"SDK3 Error {err}")
 
-        class ArrayInterface:
-            def __init__(self, buf, shape, strides):
-                self.__array_interface__ = {
-                    "shape": shape,
-                    "typestr": "<u2",
-                    "data": buf,
-                    "strides": strides,
-                    "version": 3,
-                }
-
         stride = self.features["aoi_stride"].get()
-        pixels = np.array(ArrayInterface(buf.data, self._channel_shapes["image"], (stride, 2)))
         pixels = np.lib.stride_tricks.as_strided(
             np.frombuffer(buf, dtype=np.uint16),
             shape=self._channel_shapes["image"],
-            strides=(stride, 2),
+            strides=(stride, 2),  # binning works?
         )
         self.logger.debug(f"{pixels.size}, {np.prod(self._channel_shapes['image'])}")
         pixels = np.ascontiguousarray(pixels)
-        arrayinterface = pixels.__array_interface__
-        arrayinterface["data"] = pixels.tobytes()
         self.sdk.flush(self.hndl)
 
-        return {"image": arrayinterface}
+        return {"image": pixels}
 
     def get_sensor_info(self):
         return self.sensor_info

@@ -51,15 +51,14 @@ class AndorSimcam(_andor_sdk3.AndorSDK3):
         if h_extent > max_height:
             raise ValueError(f"height extends over {h_extent} pixels, max is {max_height}")
 
-        try:  # not writable
-            self.features["aoi_hbin"].set(aoi_hbin)
-            self.features["aoi_vbin"].set(aoi_vbin)
-            self.features["aoi_width"].set(width)
-            self.features["aoi_left"].set(left)
-            self.features["aoi_height"].set(height)
-            self.features["aoi_top"].set(top)
-        except Exception as e:
-            self.logger.info(e)
+        for name, val in zip(
+            ["hbin", "vbin", "width", "left", "height", "top"],
+            [aoi_hbin, aoi_vbin, width, left, height, top]
+        ):
+            try:  # none are writable, for some reason
+                self.features[f"aoi_{name}"].set(val)
+            except Exception as e:
+                self.logger.error(f"set_aoi: {e}")
 
         # apply shape, mapping
         self._channel_shapes = {

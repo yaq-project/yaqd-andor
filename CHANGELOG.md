@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2022.5.1]
+
 ### Fixed
 - Fixes a critical bug in `AndorSDK._measure`, which makes measurement fail.
 - SDK3 now follows recommended usage of cffi (`cffi.verify` is deprecated)
@@ -18,5 +20,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 ### Added
 - initial release
 
-[Unreleased]: https://gitlab.com/yaq/yaqd-andor/-/compare/v2022.5.0...main
+[Unreleased]: https://gitlab.com/yaq/yaqd-andor/-/compare/v2022.5.1...main
+[2022.5.1]: https://gitlab.com/yaq/yaqd-andor/-/tags/v2022.5.1
 [2022.5.0]: https://gitlab.com/yaq/yaqd-andor/-/tags/v2022.5.0

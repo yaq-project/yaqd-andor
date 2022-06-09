@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2022.5.2]
+
+### Added
+- Andor SDK2 support via daemon using Ixon's 887 series EMCCDs.
+
+
 ## [2022.5.1]
 
 ### Fixed

@@ -1,0 +1,140 @@
+protocol = "andorsdk2-ixon"
+doc = ""
+traits = ["has-mapping", "has-measure-trigger", "is-sensor", "is-daemon"]
+
+[links]
+source = "https://gitlab.com/yaq/yaqd-andorsdk2"
+bugtracker = "https://gitlab.com/yaq/yaqd-andorsdk2/-/issues"
+
+[installation]
+PyPI = "https://pypi.org/project/yaqd-andorsdk2-ixon"
+
+
+[config]
+
+[config.make]
+default = "andorsdk2"
+
+[config.model]
+default = "ixon"
+
+[config.serial_number]
+type = "int"
+default= 0
+
+[config.sensor_width]
+type= "float"
+doc = "sensor width in microns"
+default = 8192.00
+
+[config.sensor_height]
+type= "float"
+doc = "sensor height in microns"
+default = 8192.00
+
+[config.pixel_width]
+type= "int"
+doc = "sensor width in pixels"
+default = 512
+
+[config.pixel_height]
+type= "int"
+doc = "sensor height in pixels"
+default = 512
+
+[config.sensor_cooling]
+type = "boolean"
+doc = "Set whether or not sensor will be cooled."
+default = false
+
+[config.sensor_temperature]
+type = "int"
+doc = "target temperature to cool if sensor cooling is on"
+default = -40
+
+[config.aoi_binning]
+type = "int"
+doc = """Option to bin pixels both horizontally and vertically. \\
+    Default is no binning (1)."""
+default = 1
+
+[config.aoi_width]
+type = ["null", "int"]
+doc = """Specify the number of pixel columns to acquire. \\
+    Can be no larger than `sensor_width` - (`aoi_left` - 1). \\
+    Defaults to use all columns starting from `aoi_left`. \\
+    """
+default = "__null__"
+
+[config.aoi_left]
+type = ["null", "int"]
+doc = """Specify left-most pixel column of the AOI. \\
+    Defaults to the full left of the camera sensor (column 1). \\
+    """
+default = "__null__"
+
+[config.aoi_height]
+type = ["null", "int"]
+doc = """Specify the number of pixel rows to acquire. \\
+    Can be no larger than `sensor_height` - (`aoi_top` - 1). \\
+    Defaults to use all rows starting from `aoi_top`. \\
+    """
+default = "__null__"
+
+[config.aoi_top]
+type = ["null", "int"]
+doc = """Specify the top-most pixel row of the AOI. \\
+    Defaults to the top of the camera sensor (1). \\
+    """
+default = "__null__"
+
+[config.simple_preamp_gain_control]
+type = "int"
+doc = "Set Preamp gain, as integer"
+default = 1
+
+[config.exposure_time]
+type = "float"
+doc = "Set camera exposure time (seconds)."
+default = 1.000
+
+[config.has_monochromator]
+type = "boolean"
+doc = "Whether camera is attached to a monochromator output."
+default = false
+
+[config.inclusion_angle]
+type = "float"
+doc = "inclusion angle of camera wrt monochromator if active (deg)."
+default = 0.00
+
+[config.focal_length_tilt]
+type = "float"
+doc = "Tilt of camera (yaw) wrt to focal line of monochromator if active (deg)."
+default = 1.000
+
+[config.focal_length]
+type = "float"
+doc = "Focal length of monochromator if active (mm)."
+default = 320.00
+
+[config.calibration_pixel]
+type = "int"
+doc = "Pixel number (horiz) to which the wavelength of the monochromator is pegged if active."
+default = 256
+
+[config.order]
+type = "int"
+doc = "order of the grating used in the monochromator if active."
+default = 1
+
+[config.grooves_per_mm]
+type = "float"
+doc = "rulings of the grating used in the monochromator if active (num per mm)."
+default = 800.00
+
+[config.spectrometer_position]
+type = "float"
+doc = "position of the monochromator if active in nm."
+default = 500.00
+

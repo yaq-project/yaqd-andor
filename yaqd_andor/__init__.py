@@ -2,3 +2,4 @@
 
 from .__version__ import *
 from . import atcore
+from . import atmcd

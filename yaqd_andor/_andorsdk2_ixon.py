@@ -232,15 +232,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         return self.exposure_time
 
 
-    def get_spec_position(self):
-        # Gets the CCD mapping to the spectrometer position (nm)
-        if self.has_mono:
-            return self.spec_position
-        else:
-            self.logger.info(f"Attempt to change spectrometer position when monochromator portion not enabled.")
-            return float(0.00)
-
-
     def close(self):
         #stop loop
         self.stop_update=True

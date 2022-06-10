@@ -2,7 +2,7 @@ from ctypes import *
 import ctypes.util
 import platform
 import os, sys
-from typing import Union, List
+from typing import List
 import numpy as np
 
 

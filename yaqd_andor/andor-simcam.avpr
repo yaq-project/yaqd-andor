@@ -288,9 +288,9 @@
             "response": {
                 "type": "map",
                 "values": [
-                    "int",
                     "double",
-                    "ndarray"
+                    "ndarray",
+                    "int"
                 ]
             }
         },

@@ -204,6 +204,11 @@
             "request": [],
             "response": "boolean"
         },
+        "close": {
+            "doc": "Warms the camera to RT, then closes it.",
+            "request": [],
+            "response": "null"
+        },
         "get_channel_mappings": {
             "doc": "Defines which mapping keys apply to which channel keys. Each channel may have zero or many mappings. Mappings must broadcast into corresponding channels.",
             "origin": "has-mapping",
@@ -261,6 +266,11 @@
             "request": [],
             "response": "string"
         },
+        "get_exposure_time": {
+            "doc": "Get the CCD exposure time (sec).",
+            "request": [],
+            "response": "float"
+        },
         "get_mapping_id": {
             "doc": "Mapping ID. This integer increments every time the mapping is updated. Clients can safely check this id to verify that their cached mappings are correct, if desired.",
             "origin": "has-mapping",
@@ -299,9 +309,9 @@
             "response": {
                 "type": "map",
                 "values": [
+                    "int",
                     "double",
-                    "ndarray",
-                    "int"
+                    "ndarray"
                 ]
             }
         },
@@ -312,6 +322,11 @@
             "response": {
                 "type": "int"
             }
+        },
+        "get_spec_position": {
+            "doc": "Get the reference spectrometer position for the CCD (nm) if monochromator is in use.",
+            "request": [],
+            "response": "float"
         },
         "get_state": {
             "doc": "Get version of the running daemon",
@@ -343,6 +358,26 @@
             ],
             "response": "int"
         },
+        "set_exposure_time": {
+            "doc": "Set the CCD exposure time (sec).",
+            "request": [
+                {
+                    "name": "exposure_time",
+                    "type": "float"
+                }
+            ],
+            "response": "null"
+        },
+        "set_spec_position": {
+            "doc": "Set the reference spectrometer position for the CCD (nm) if monochromator is in use.",
+            "request": [
+                {
+                    "name": "spec_position",
+                    "type": "float"
+                }
+            ],
+            "response": "null"
+        },
         "shutdown": {
             "doc": "Cleanly shutdown (or restart) daemon.",
             "origin": "is-daemon",
@@ -360,6 +395,30 @@
             "origin": "has-measure-trigger",
             "request": [],
             "response": "null"
+        }
+    },
+    "properties": {
+        "exposure_time": {
+            "control_kind": "hinted",
+            "dynamic": true,
+            "getter": "get_exposure_time",
+            "limits_getter": null,
+            "options_getter": null,
+            "record_kind": "metadata",
+            "setter": "set_exposure_time",
+            "type": "float",
+            "units_getter": null
+        },
+        "spec_position": {
+            "control_kind": "hinted",
+            "dynamic": true,
+            "getter": "get_spec_position",
+            "limits_getter": null,
+            "options_getter": null,
+            "record_kind": "metadata",
+            "setter": "set_spec_position",
+            "type": "float",
+            "units_getter": null
         }
     },
     "protocol": "andorsdk2-ixon",

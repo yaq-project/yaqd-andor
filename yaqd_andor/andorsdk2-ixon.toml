@@ -138,3 +138,43 @@ type = "float"
 doc = "position of the monochromator if active in nm."
 default = 500.00
 
+
+[messages]
+
+[messages.set_spec_position]
+request= [{"name"="spec_position", "type"="float"}]
+doc = "Set the reference spectrometer position for the CCD (nm) if monochromator is in use."
+
+[messages.get_spec_position]
+response="float"
+doc = "Get the reference spectrometer position for the CCD (nm) if monochromator is in use."
+
+[messages.set_exposure_time]
+request= [{"name"="exposure_time", "type"="float"}]
+doc = "Set the CCD exposure time (sec)."
+
+[messages.get_exposure_time]
+response="float"
+doc = "Get the CCD exposure time (sec)."
+
+[messages.close]
+response="null"
+doc = "Warms the camera to RT, then closes it."
+
+
+[properties]
+
+[properties.spec_position]
+setter="set_spec_position"
+getter="get_spec_position"
+control_kind = "hinted"
+record_kind = "metadata"
+type="float"
+
+[properties.exposure_time]
+setter="set_exposure_time"
+getter="get_exposure_time"
+control_kind = "hinted"
+record_kind = "metadata"
+type="float"
+

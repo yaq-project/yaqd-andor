@@ -4,6 +4,7 @@ import platform
 import os, sys
 from typing import Union, List
 import numpy as np
+from ctypes import windll, cdll, WinDLL, CDLL
 
 MAX_PATH = 256
 
@@ -56,7 +57,7 @@ class atmcd:
     def __init__(self, userPath = None):
         self.dll = self._load_library(userPath)
 
-    def _load_library(self, userPath): #-> Union[WinDLL, CDLL]:
+    def _load_library(self, userPath) -> Union[WinDLL, CDLL]:
         if sys.platform == "linux":
             return cdll.LoadLibrary("/usr/local/lib/libandor.so")
         elif sys.platform == "win32":

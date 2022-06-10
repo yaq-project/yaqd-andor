@@ -7,7 +7,6 @@ import os
 import platform
 import sys
 import ctypes
-from regex import W
 
 from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
 from typing import Dict, Any, List, Union

@@ -8,7 +8,6 @@ if sys.version < "3":
     def u(x):
         return codecs.unicode_escape_decode(x)[0]
 
-
 else:
 
     def u(x):

@@ -14,7 +14,7 @@ ATCoreException = atcore.ATCoreException
 
 
 class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
-    state_features:List[str] = []
+    state_features: List[str] = []
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
@@ -72,7 +72,7 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         self.logger.debug(self.sensor_info)
 
         for key in self.state_features:
-            fi  = self.features[key]
+            fi = self.features[key]
             dest = self._state[key]
             if dest in ["", -1]:  # unassigned, poll for current value
                 self._state[key] = fi.get()
@@ -123,7 +123,7 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         return self.sensor_info
 
     def get_feature_names(self) -> List[str]:
-        return [f"{k} -> {v.sdk_name}" for k,v in self.features.items()]
+        return [f"{k} -> {v.sdk_name}" for k, v in self.features.items()]
 
     def get_feature_type(self, k: str):
         return self.features[k].type
@@ -158,22 +158,25 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
         self._state[key] = self.features[key].get()
 
     def gen_setter(self, key):
-        def setter(val:Any):
+        def setter(val: Any):
             self._set_feature_by_key(key, val)
+
         return setter
-    
+
     def gen_getter(self, key):
         def getter() -> Any:
             return self._state[key]
+
         return getter
 
     def gen_limits_getter(self, key):
         def getter() -> List[float]:
             return [self.features[key].min(), self.features[key].max()]
+
         return getter
-    
+
     def gen_options_getter(self, key):
         def getter() -> str:
             return self.features[key].options()
-        return getter
 
+        return getter

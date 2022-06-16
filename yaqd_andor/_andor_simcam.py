@@ -53,7 +53,7 @@ class AndorSimcam(_andor_sdk3.AndorSDK3):
 
         for name, val in zip(
             ["hbin", "vbin", "width", "left", "height", "top"],
-            [aoi_hbin, aoi_vbin, width, left, height, top]
+            [aoi_hbin, aoi_vbin, width, left, height, top],
         ):
             try:  # none are writable, for some reason
                 self.features[f"aoi_{name}"].set(val)

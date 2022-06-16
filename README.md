@@ -28,3 +28,6 @@ To run these daemons, you must also have access to the ANDOR sdk3 driver files:
 `andor-simcam` uses Andor's virtual camera, which is useful for remote development.
 For Windows, these libraries require [Microsoft Build tools for Visual Studio](https://visualstudio.microsoft.com/downloads/) (specifically, the Windows SDK and C++ x64/x86 build tools are needed).
 
+## maintainers
+
+[Dan Kohler](https://github.com/ddkohler)

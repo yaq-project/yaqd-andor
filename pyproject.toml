@@ -5,8 +5,7 @@ build-backend = "flit_core.buildapi"
 [tool.flit.metadata]
 module = "yaqd_andor"
 dist-name = "yaqd-andor"
-author = "yaq Developers"
-author-email = "ddkohler@wisc.edu"
+author = "yaq developers"
 home-page = "https://yaq.fyi"
 description-file = "README.md"
 requires-python = ">=3.7"
@@ -23,8 +22,8 @@ classifiers = [
 ]
 
 [tool.flit.metadata.urls]
-Source = "https://gitlab.com/yaq/yaqd-andor"
-Issues = "https://gitlab.com/yaq/yaqd-andor/issues"
+Source = "https://github.com/yaq-project/yaqd-andor"
+Issues = "https://github.com/yaq-project/yaqd-andor/issues"
 
 [tool.flit.metadata.requires-extra]
 dev = ["black", "pre-commit"]

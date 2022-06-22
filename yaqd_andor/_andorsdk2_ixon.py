@@ -106,6 +106,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self._channel_mappings = {"image": ["x_index", "y_index"]}
             self._mapping_units = {"x_index": "None", "y_index": "None"}
             self._mappings = {"x_index": self.x_ai, "y_index": self.y_ai}
+            out = self.x_ai
         return out
 
 

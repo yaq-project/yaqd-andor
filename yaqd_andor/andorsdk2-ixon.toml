@@ -90,13 +90,8 @@ default = "__null__"
 
 [config.simple_preamp_gain_control]
 type = "int"
-doc = "Set Preamp gain, as integer"
+doc = "Set Preamp gain, as integer (0 = 1.0x, 1 =2.3x, 2 =4.7x, no others available)"
 default = 1
-
-[config.exposure_time]
-type = "float"
-doc = "Set camera exposure time (seconds)."
-default = 1.000
 
 [config.has_monochromator]
 type = "boolean"
@@ -133,11 +128,6 @@ type = "float"
 doc = "rulings of the grating used in the monochromator if active (num per mm)."
 default = 800.00
 
-[config.spectrometer_position]
-type = "float"
-doc = "position of the monochromator if active in nm."
-default = 500.00
-
 
 [messages]
 
@@ -160,6 +150,19 @@ doc = "Get the CCD exposure time (sec)."
 [messages.close]
 response="null"
 doc = "Warms the camera to RT, then closes it."
+
+
+[state]
+
+[state.exposure_time]
+type = "float"
+doc = "exposure time in seconds(float)."
+default = 1.000
+
+[state.spec_position]
+type = "float"
+doc = "spectrometer position in nm."
+default = 500.00
 
 
 [properties]

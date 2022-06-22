@@ -48,11 +48,6 @@
             "origin": "is-daemon",
             "type": "boolean"
         },
-        "exposure_time": {
-            "default": 1.0,
-            "doc": "Set camera exposure time (seconds).",
-            "type": "float"
-        },
         "focal_length": {
             "default": 320.0,
             "doc": "Focal length of monochromator if active (mm).",
@@ -180,13 +175,8 @@
         },
         "simple_preamp_gain_control": {
             "default": 1,
-            "doc": "Set Preamp gain, as integer",
+            "doc": "Set Preamp gain, as integer (0 = 1.0x, 1 =2.3x, 2 =4.7x, no others available)",
             "type": "int"
-        },
-        "spectrometer_position": {
-            "default": 500.0,
-            "doc": "position of the monochromator if active in nm.",
-            "type": "float"
         }
     },
     "doc": "",
@@ -423,6 +413,18 @@
     },
     "protocol": "andorsdk2-ixon",
     "requires": [],
+    "state": {
+        "exposure_time": {
+            "default": 1.0,
+            "doc": "exposure time in seconds(float).",
+            "type": "float"
+        },
+        "spec_position": {
+            "default": 500.0,
+            "doc": "spectrometer position in nm.",
+            "type": "float"
+        }
+    },
     "traits": [
         "has-mapping",
         "has-measure-trigger",

@@ -14,9 +14,8 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
-        self._channel_names = ["image"]
-        self._channel_units = {"image": "counts"}
         self.stop_update==True
+
         # find devices
         code, device_count = self.sdk.GetAvailableCameras()
         if device_count == 0:
@@ -37,15 +36,20 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
 
         #self.sensor_info = {}
         #self.logger.debug(self.sensor_info)
+        self.exposure_time=self._state["exposure_time"]
+        self._channel_names = ["image"]
+        self._channel_units = {"image": "counts"}
         self.sensor_width = self._config["sensor_width"]
         self.sensor_height = self._config["sensor_height"]
         self.max_width = self._config["pixel_width"]
         self.max_height = self._config["pixel_height"]
         self.preamp_gain=int(self._config["simple_preamp_gain_control"])
-        self.exposure_time=float(self._config["exposure_time"])
         self.has_mono=bool(self._config["has_monochromator"])
         self._set_aoi()
         self._gen_mappings()
+        if self.has_mono:
+            self.spec_position=self._state["spec_position"]
+            self.set_spec_position(self.spec_position)
 
         # implement config, state features
         # see p97 of SDK2 on the conversion of noise filters from sdk3 to sdk2 or v-v.
@@ -53,20 +57,30 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         # these filters and SDK3.  These may be hardcoded here rather than in config.
         #self.sdk.Filter_SetMode(int(self._config["spurious_noise_filter"]))
         #self.sdk.Filter_SetThreshold(float(self._config["filter_threshold"]))
-        self.sdk.SetPreAmpGain(self.preamp_gain)
-        self.logger.info(
-                f"PreAmpGain: {self.preamp_gain}"
-            )
+        self.logger.info(f"number of gains: {self.sdk.GetNumberPreAmpGains()}")
+        try:
+            for i in range(3):
+                self.logger.info(i)
+                out = self.sdk.GetPreAmpGainText(i, 30)[1]
+                self.logger.info("here")
+                gain_str = b"".join(out).decode()
+                self.logger.info(f"gain setting {i} has gain value: {gain_str}")
+        except Exception as e:
+            self.logger.error(e)
+        if self.preamp_gain in range(3):
+            self.sdk.SetPreAmpGain(self.preamp_gain)
+            self.logger.info(f"PreAmpGain: {self.preamp_gain}")
+        else:
+            raise ValueError("PreAmpGain setting out of range")
 
         self.sdk.SetExposureTime(self.exposure_time)
         self.logger.info(
                 f"Exposure Time: {self.exposure_time} sec"
             )
-        # aoi currently in config, so only need to run on startup
-
         self._set_temperature()
         self.sdk.SetShutter(int(0),int(1),int(100),int(100))
         self.stop_update=False
+
 
     def _gen_mappings(self):
         """Get map."""
@@ -77,7 +91,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             pixel_width_mm =float(self.sensor_width/self.max_width)/1000.00
             self._channel_mappings = {"image": ["wavelengths", "y_index"]}
             self._mapping_units = {"wavelengths": "nm", "y_index": "None"}
-            self.spec_position = self._config["spectrometer_position"]
 
             # create array
             i_pixel = np.array(self.x_ai, dtype=float)
@@ -147,7 +160,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.logger.info(f"binning={binning}, left_aoi=pixel {left}, right_aoi=pixel {right}, top_aoi=pixel {top}, bottom_aoi=pixel {bottom}.")
         if code != 20002:
             raise ValueError(str(self.errorlookup(code)))
-            return code
+
         else:
             self.buffer_size=int(int(width)*int(height))
             self.buffer=np.zeros([arrwidth, arrheight], dtype=int)
@@ -176,7 +189,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.logger.info(f"Sensor is cooling.  Target temp is {self.sensor_temp_control} C.")
             self._loop.run_in_executor(None, self._check_temp_stabilized)
         else:
-            self.sensor_temp = float(self.sdk.GetTemperature())
+            code,self.sensor_temp = self.sdk.GetTemperature()
             self.logger.info(f"Sensor is not cooled.  Current temp is {self.sensor_temp} C.")
 
 

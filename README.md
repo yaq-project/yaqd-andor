@@ -9,10 +9,13 @@
 
 Daemons for [Andor](https://andor.oxinst.com/) cameras
 
+Sdk3 files
+---------
 This package contains the following daemon(s):
 
 - https://yaq.fyi/daemons/andor-neo
 - https://yaq.fyi/daemons/andor-simcam
+
 
 To run these daemons, you must also have access to the ANDOR sdk3 driver files:
 

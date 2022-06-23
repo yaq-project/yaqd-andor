@@ -184,7 +184,7 @@ class ATCore(object):
         """
         )
         dirs = pathlib.Path(__file__).parent
-        self.lib = self.ffi.dlopen("atcore")
+        self.lib = self.ffi.dlopen(str(dirs / "atcore"))
         self.handle_return(self.lib.AT_InitialiseLibrary())
 
     def __del__(self):

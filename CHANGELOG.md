@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Fixed
+- Fixed bug where cffi could not find associated atcore library.
+
 ## [2022.6.0]
 
 ### Changed

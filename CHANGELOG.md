@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 ## [Unreleased]
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+### Fixed
+- Fixed bug where cffi could not find associated atcore library.
+
+>>>>>>> main
 ## [2022.6.0]
 
 ### Changed
@@ -16,7 +22,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 ### Added
 - Andor SDK2 support via daemon using Ixon's 887 series EMCCDs.
 
+<<<<<<< HEAD
 >>>>>>> sdkv2_update
+=======
+>>>>>>> 1995b5a (tweak)
+>>>>>>> main
 
 ## [2022.5.1]
 

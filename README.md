@@ -31,6 +31,7 @@ To run these daemons, you must also have access to the ANDOR sdk3 driver files:
 `andor-simcam` uses Andor's virtual camera, which is useful for remote development.
 For Windows, these libraries require [Microsoft Build tools for Visual Studio](https://visualstudio.microsoft.com/downloads/) (specifically, the Windows SDK and C++ x64/x86 build tools are needed).
 
+<<<<<<< HEAD
 
 Sdk2 files
 ---------
@@ -45,5 +46,17 @@ The run these daemon(s), you must also have access to the ANDOR sdk2 driver file
 
 
 ## maintainers
+=======
+>>>>>>> main
 
-[Dan Kohler](https://github.com/ddkohler)
+Sdk2 files
+---------
+This package contains the following daemon(s):
+
+- https://yaq.fyi/daemons/andorsdk2-ixon
+
+The run these daemon(s), you must also have access to the ANDOR sdk2 driver files:
+
+/usr/local/lib/libandor.so  OR  atmcd64d.dll /atmcd32d.dll  (Linux / Windows DLL files (64/32-bit))
+
+

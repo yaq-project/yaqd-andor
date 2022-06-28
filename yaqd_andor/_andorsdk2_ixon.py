@@ -70,7 +70,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self._set_temperature()
         self.sdk.SetShutter(int(0), int(1), int(100), int(100))
 
-    def _gen_mappings(self, x_ai, y_ai, binning):
+    def _gen_mappings(self):
         """Get map."""
         if self.has_mono:
             # translate inputs into appropriate internal units
@@ -82,8 +82,8 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.spec_position = self._config["spectrometer_position"]
 
             # create array
-            i_pixel = np.array(x_ai, dtype=float)
-            eff_pixel_width_mm = float(int(binning) * pixel_width_mm)
+            i_pixel = np.array(self.x_ai, dtype=float)
+            eff_pixel_width_mm = float(int(self.binning) * pixel_width_mm)
             # calculate terms
             x = np.arcsin(
                 (
@@ -110,11 +110,11 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             out = ((A + B) * float(1e6)) / (
                 float(self._config["order"]) * float(self._config["grooves_per_mm"])
             )
-            self._mappings = {"x_index": out, "y_index": y_ai}
+            self._mappings = {"x_index": out, "y_index": self.y_ai}
         else:
             self._channel_mappings = {"image": ["x_index", "y_index"]}
             self._mapping_units = {"x_index": "None", "y_index": "None"}
-            self._mappings = {"x_index": x_ai, "y_index": y_ai}
+            self._mappings = {"x_index": self.x_ai, "y_index": self.y_ai}
         return out
 
     def _set_aoi(self):

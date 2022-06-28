@@ -115,7 +115,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self._channel_mappings = {"image": ["x_index", "y_index"]}
             self._mapping_units = {"x_index": "None", "y_index": "None"}
             self._mappings = {"x_index": self.x_ai, "y_index": self.y_ai}
-        return out
+        return
 
     def _set_aoi(self):
         aoi_keys = ["aoi_binning", "aoi_width", "aoi_left", "aoi_height", "aoi_top"]
@@ -175,7 +175,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
                 :, None
             ]
             self.binning = int(binning)
-            return 0
+            return
 
     def _set_temperature(self):
         self.sensor_cooling = self._config["sensor_cooling"]

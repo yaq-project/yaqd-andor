@@ -49,10 +49,12 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.preamp_gain = int(self._config["simple_preamp_gain_control"])
         self.has_mono = bool(self._config["has_monochromator"])
         self._set_aoi()
-        self._gen_mappings()
+
         if self.has_mono:
             self.spec_position = self._state["spec_position"]
             self.set_spec_position(self.spec_position)
+        else:
+            self._gen_mappings()
 
         # implement config, state features
         # see p97 of SDK2 on the conversion of noise filters from sdk3 to sdk2 or v-v.
@@ -79,7 +81,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             pixel_width_mm = float(self.sensor_width / self.max_width) / 1000.00
             self._channel_mappings = {"image": ["wavelengths", "y_index"]}
             self._mapping_units = {"wavelengths": "nm", "y_index": "None"}
-            self.spec_position = self._config["spectrometer_position"]
+            self.spec_position = self._state["spec_position"]
 
             # create array
             i_pixel = np.array(self.x_ai, dtype=float)

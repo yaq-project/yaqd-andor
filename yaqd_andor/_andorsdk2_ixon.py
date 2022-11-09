@@ -255,6 +255,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.sdk.SetShutter(int(0), int(2), int(100), int(100))
         sleep(0.50)
         self.sdk.CoolerOFF()
+        """
         self.sensor_temp_control = int(25.0)
         code = self.sdk.SetTemperature(self.sensor_temp_control)
         sleep(0.20)
@@ -267,11 +268,11 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             sleep(3)
             code, self.sensor_temp = self.sdk.GetTemperature()
             diff = float(self.sensor_temp_control) - float(self.sensor_temp)
-
+        """
         sleep(0.2)
         code = self.sdk.ShutDown()
         if code != 20002:
             raise ValueError(str(self.errorlookup(code)) + ", not closed properly")
         else:
-            self.logger.info(f"Sensor warmed to RT. Camera closed.")
+            self.logger.info(f"Camera closed.")
         return

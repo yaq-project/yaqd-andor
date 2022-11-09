@@ -112,7 +112,7 @@
     },
     "doc": "",
     "hardware": [
-        "andor:neo-55"
+        "andor:neo-5-5"
     ],
     "installation": {
         "PyPI": "https://pypi.org/project/yaqd-andor"

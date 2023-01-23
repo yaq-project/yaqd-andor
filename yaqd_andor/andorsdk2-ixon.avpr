@@ -1,5 +1,14 @@
 {
     "config": {
+        "spec_position": {
+            "default": null,
+            "doc": "Spectrometer central wavelength (in nm) if float.  If null, no spectrometer.  Can also poll `has-position` daemon for position by providing string of format 'host:port'.",
+            "type": [
+                "null",
+                "float",
+                "string"
+            ]
+        },
         "aoi_binning": {
             "default": 1,
             "doc": "Option to bin pixels both horizontally and vertically. \\\n    Default is no binning (1).",
@@ -53,24 +62,9 @@
             "doc": "Focal length of monochromator if active (mm).",
             "type": "float"
         },
-        "focal_length_tilt": {
-            "default": 1.0,
-            "doc": "Tilt of camera (yaw) wrt to focal line of monochromator if active (deg).",
-            "type": "float"
-        },
         "grooves_per_mm": {
-            "default": 800.0,
-            "doc": "rulings of the grating used in the monochromator if active (num per mm).",
-            "type": "float"
-        },
-        "has_monochromator": {
-            "default": false,
-            "doc": "Whether camera is attached to a monochromator output.",
-            "type": "boolean"
-        },
-        "inclusion_angle": {
-            "default": 0.0,
-            "doc": "inclusion angle of camera wrt monochromator if active (deg).",
+            "default": 600.0,
+            "doc": "number of grooves per mm for the grating if active.",
             "type": "float"
         },
         "log_level": {
@@ -313,11 +307,6 @@
                 "type": "int"
             }
         },
-        "get_spec_position": {
-            "doc": "Get the reference spectrometer position for the CCD (nm) if monochromator is in use.",
-            "request": [],
-            "response": "float"
-        },
         "get_state": {
             "doc": "Get version of the running daemon",
             "origin": "is-daemon",
@@ -358,16 +347,6 @@
             ],
             "response": "null"
         },
-        "set_spec_position": {
-            "doc": "Set the reference spectrometer position for the CCD (nm) if monochromator is in use.",
-            "request": [
-                {
-                    "name": "spec_position",
-                    "type": "float"
-                }
-            ],
-            "response": "null"
-        },
         "shutdown": {
             "doc": "Cleanly shutdown (or restart) daemon.",
             "origin": "is-daemon",
@@ -398,17 +377,6 @@
             "setter": "set_exposure_time",
             "type": "float",
             "units_getter": null
-        },
-        "spec_position": {
-            "control_kind": "hinted",
-            "dynamic": true,
-            "getter": "get_spec_position",
-            "limits_getter": null,
-            "options_getter": null,
-            "record_kind": "metadata",
-            "setter": "set_spec_position",
-            "type": "float",
-            "units_getter": null
         }
     },
     "protocol": "andorsdk2-ixon",
@@ -417,11 +385,6 @@
         "exposure_time": {
             "default": 1.0,
             "doc": "exposure time in seconds(float).",
-            "type": "float"
-        },
-        "spec_position": {
-            "default": 500.0,
-            "doc": "spectrometer position in nm.",
             "type": "float"
         }
     },

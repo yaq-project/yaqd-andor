@@ -93,25 +93,20 @@ type = "int"
 doc = "Set Preamp gain, as integer (0 = 1.0x, 1 =2.3x, 2 =4.7x, no others available)"
 default = 1
 
-[config.has_monochromator]
-type = "boolean"
-doc = "Whether camera is attached to a monochromator output."
-default = false
-
-[config.inclusion_angle]
-type = "float"
-doc = "inclusion angle of camera wrt monochromator if active (deg)."
-default = 0.00
-
-[config.focal_length_tilt]
-type = "float"
-doc = "Tilt of camera (yaw) wrt to focal line of monochromator if active (deg)."
-default = 1.000
+[config.spec_position]
+type= ["null", "float", "string"]
+doc = "Spectrometer central wavelength (in nm) if float.  If null, no spectrometer.  Can also poll `has-position` daemon for position by providing string of format 'host:port'."
+default = "__null__"
 
 [config.focal_length]
 type = "float"
 doc = "Focal length of monochromator if active (mm)."
 default = 320.00
+
+[config.grooves_per_mm]
+type = "float"
+doc = "number of grooves per mm for the grating if active."
+default = 600.00
 
 [config.calibration_pixel]
 type = "int"
@@ -123,21 +118,8 @@ type = "int"
 doc = "order of the grating used in the monochromator if active."
 default = 1
 
-[config.grooves_per_mm]
-type = "float"
-doc = "rulings of the grating used in the monochromator if active (num per mm)."
-default = 800.00
-
 
 [messages]
-
-[messages.set_spec_position]
-request= [{"name"="spec_position", "type"="float"}]
-doc = "Set the reference spectrometer position for the CCD (nm) if monochromator is in use."
-
-[messages.get_spec_position]
-response="float"
-doc = "Get the reference spectrometer position for the CCD (nm) if monochromator is in use."
 
 [messages.set_exposure_time]
 request= [{"name"="exposure_time", "type"="float"}]
@@ -159,20 +141,8 @@ type = "float"
 doc = "exposure time in seconds(float)."
 default = 1.000
 
-[state.spec_position]
-type = "float"
-doc = "spectrometer position in nm."
-default = 500.00
-
 
 [properties]
-
-[properties.spec_position]
-setter="set_spec_position"
-getter="get_spec_position"
-control_kind = "hinted"
-record_kind = "metadata"
-type="float"
 
 [properties.exposure_time]
 setter="set_exposure_time"

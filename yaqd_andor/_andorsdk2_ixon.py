@@ -28,7 +28,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.has_mono=True
             self.spec_client=yaqc.Client(int(port), host=host)
             self.spec_position=self.spec_client.get_position()
-        else if isinstance(self._spec_position, float):
+        elif isinstance(self._spec_position, float):
             self.has_mono=True
             self.spec_client=None
             self.spec_position=self._spec_position

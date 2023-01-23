@@ -19,7 +19,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.stop_update == True
         self._channel_names = ["image"]
         self._channel_units = {"image": "counts"}
-        
+
         #self.has_mono = bool(self._config["has_monochromator"])
         self._spec_position = self._config["spectrometer_position"]
 
@@ -38,7 +38,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.spec_position=None
 
         hw=self.get_dependent_hardware()
-     
+
         # find devices
         code, device_count = self.sdk.GetAvailableCameras()
         if device_count == 0:
@@ -67,7 +67,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.max_width = self._config["pixel_width"]
         self.max_height = self._config["pixel_height"]
         self.preamp_gain = int(self._config["simple_preamp_gain_control"])
-            
+
         self._set_aoi()
         self._gen_mappings()
 
@@ -76,19 +76,19 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         # these filters and SDK3.
         # self.sdk.Filter_SetMode(int(self._config["spurious_noise_filter"]))
         # self.sdk.Filter_SetThreshold(float(self._config["filter_threshold"]))
-        
+
         self.sdk.SetPreAmpGain(self.preamp_gain)
         self.logger.info(f"PreAmpGain: {self.preamp_gain}")
 
         self.sdk.SetExposureTime(self.exposure_time)
         self.logger.info(f"Exposure Time: {self.exposure_time} sec")
-        
+
         self._set_temperature()
         self.sdk.SetShutter(int(0), int(1), int(100), int(100))
 
-   
+
     def _initialize_spec_settings(self):
-        if self.has_mono:    
+        if self.has_mono:
             self.spec_grooves_per_mm=self._config["grooves_per_mm"]
             self.spec_order=self._config["order"]
             self.spec_focal_length=self._config["focal_length"]
@@ -103,7 +103,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
     def _gen_mappings(self):
         """Get map."""
         self._initialize_spec_settings()
-        
+
         if self.has_mono:
             # translate inputs into appropriate internal units
             spec_inclusion_angle_rad=0.00
@@ -280,7 +280,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.sdk.SetShutter(int(0), int(2), int(100), int(100))
         sleep(0.50)
         self.sdk.CoolerOFF()
-        """ # This portion of code is commented out unless it is found that the CCD needs 
+        """ # This portion of code is commented out unless it is found that the CCD needs
         # to warm up before a full close is supposed to return
         self.sensor_temp_control = int(25.0)
         code = self.sdk.SetTemperature(self.sensor_temp_control)

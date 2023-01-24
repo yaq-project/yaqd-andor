@@ -8,7 +8,7 @@ import platform
 import sys
 import ctypes
 
-from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
+from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping, HasDependents
 from typing import Dict, Any, List, Union
 from . import atmcd
 
@@ -28,7 +28,7 @@ def finddllpath():
         return FileNotFoundError("cannot find appropriate library on this OS")
 
 
-class AndorSDK2(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
+class AndorSDK2(HasMapping, HasMeasureTrigger, HasDependents, IsSensor, IsDaemon):
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
         self.dllpath = self.finddllpath()

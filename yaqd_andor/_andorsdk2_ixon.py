@@ -19,8 +19,8 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.stop_update == True
         self._channel_names = ["image"]
         self._channel_units = {"image": "counts"}
-        
-        #self.has_mono = bool(self._config["has_monochromator"])
+
+        # self.has_mono = bool(self._config["has_monochromator"])
         self._spec_position = self._config["spec_position"]
 
         if isinstance(self._spec_position, str):

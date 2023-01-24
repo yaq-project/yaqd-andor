@@ -104,7 +104,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
 
     def gen_mappings(self):
         """Get map."""
-        
+
         if self.has_mono:
             # translate inputs into appropriate internal units
             spec_inclusion_angle_rad = 0.00

@@ -29,15 +29,15 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.spec_client=yaqc.Client(int(port), host=host)
             
         elif isinstance(self._spec_position, float):
-            self.has_mono=True
-            self.spec_client=None
-            self.spec_position=self._spec_position
+            self.has_mono = True
+            self.spec_client = None
+            self.spec_position = self._spec_position
         else:
-            self.has_mono=False
-            self.spec_client=None
-            self.spec_position=None
+            self.has_mono = False
+            self.spec_client = None
+            self.spec_position = None
 
-        hw=self.get_dependent_hardware()
+        hw = self.get_dependent_hardware()
 
         # find devices
         code, device_count = self.sdk.GetAvailableCameras()
@@ -87,9 +87,9 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self._set_temperature()
         self.sdk.SetShutter(int(0), int(1), int(100), int(100))
 
-   
+
     def _initialize_spec_settings(self):
-        if self.has_mono:    
+        if self.has_mono:
             self.spec_grooves_per_mm=self._config["grooves_per_mm"]
             self.spec_order=self._config["order"]
             self.spec_focal_length=self._config["focal_length"]
@@ -99,6 +99,59 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.spec_order=None
             self.spec_focal_length=None
             self.spec_calibration_pixel=None
+
+
+    def _gen_mappings(self):
+        """Get map."""
+        self._initialize_spec_settings()
+
+        if self.has_mono:
+            # translate inputs into appropriate internal units
+            spec_inclusion_angle_rad=0.00
+            #spec_inclusion_angle_rad = np.radians(float(self._config["inclusion_angle"]))
+            spec_focal_length_tilt_rad=0.00
+            #spec_focal_length_tilt_rad = np.radians(float(self._config["focal_length_tilt"]))
+            pixel_width_mm = float(self.sensor_width / self.max_width) / 1000.00
+
+            self._initialize_spec_settings()
+            self._channel_mappings = {"image": ["wavelengths", "y_index"]}
+            self._mapping_units = {"wavelengths": "nm", "y_index": "None"}
+
+            # create array
+            i_pixel = np.array(self.x_ai, dtype=float)
+            eff_pixel_width_mm = float(int(self.binning) * pixel_width_mm)
+            # calculate terms
+            x = np.arcsin(
+                (
+                    1e-6
+                    * self.spec_order
+                    * self.spec_grooves_per_mm
+                    * self.spec_position
+                )
+                / (2 * np.cos(spec_inclusion_angle_rad / 2.0))
+            )
+            A = np.sin(x - spec_inclusion_angle_rad / 2)
+            B = np.sin(
+                (spec_inclusion_angle_rad)
+                + x
+                - (spec_inclusion_angle_rad / 2)
+                - np.arctan(
+                    (
+                        eff_pixel_width_mm * (i_pixel - self.spec_calibration_pixel)
+                        + self.spec_focal_length * spec_focal_length_tilt_rad
+                    )
+                    / (self.spec_focal_length * np.cos(spec_focal_length_tilt_rad))
+                )
+            )
+            out = ((A + B) * float(1e6)) / (
+                float(self.spec_order) * float(self.spec_grooves_per_mm)
+            )
+            self._mappings = {"x_index": out, "y_index": self.y_ai}
+        else:
+            self._channel_mappings = {"image": ["x_index", "y_index"]}
+            self._mapping_units = {"x_index": "None", "y_index": "None"}
+            self._mappings = {"x_index": self.x_ai, "y_index": self.y_ai}
+        return
 
 
     def _set_aoi(self):
@@ -161,7 +214,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.binning = int(binning)
             return
 
-
     def _set_temperature(self):
         self.sensor_cooling = self._config["sensor_cooling"]
         if self.sensor_cooling:
@@ -178,7 +230,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             code, self.sensor_temp = self.sdk.GetTemperature()
             self.logger.info(f"Sensor is not cooled.  Current temp is {self.sensor_temp} C.")
 
-
     def _check_temp_stabilized(self):
         code, self.sensor_temp = self.sdk.GetTemperature()
         diff = float(self.sensor_temp_control) - float(self.sensor_temp)
@@ -192,66 +243,11 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
 
         self.logger.info("Sensor temp is stabilized.")
 
-
     def get_dependent_hardware(self):
-        dependents=dict()
+        dependents = dict()
         if self.spec_client is not None:
             dependents = {"monochromator": self._spec_position}
         return dependents
-
-
-    def gen_mappings(self):
-        """Generate map."""
-        
-        if self.has_mono:
-            if self.spec_client is not None:
-                self.spec_position=self.spec_client.get_position()
-
-            # translate inputs into appropriate internal units
-            spec_inclusion_angle_rad=0.00
-            #spec_inclusion_angle_rad = np.radians(float(self._config["inclusion_angle"]))
-            spec_focal_length_tilt_rad=0.00
-            #spec_focal_length_tilt_rad = np.radians(float(self._config["focal_length_tilt"]))
-            pixel_width_mm = float(self.sensor_width / self.max_width) / 1000.00
-
-            self._channel_mappings = {"image": ["wavelengths", "y_index"]}
-            self._mapping_units = {"wavelengths": "nm", "y_index": "None"}
-
-            # create array
-            i_pixel = np.array(self.x_ai, dtype=float)
-            eff_pixel_width_mm = float(int(self.binning) * pixel_width_mm)
-            # calculate terms
-            x = np.arcsin(
-                (
-                    1e-6
-                    * self.spec_order
-                    * self.spec_grooves_per_mm
-                    * self.spec_position
-                )
-                / (2 * np.cos(spec_inclusion_angle_rad / 2.0))
-            )
-            A = np.sin(x - spec_inclusion_angle_rad / 2)
-            B = np.sin(
-                (spec_inclusion_angle_rad)
-                + x
-                - (spec_inclusion_angle_rad / 2)
-                - np.arctan(
-                    (
-                        eff_pixel_width_mm * (i_pixel - self.spec_calibration_pixel)
-                        + self.spec_focal_length * spec_focal_length_tilt_rad
-                    )
-                    / (self.spec_focal_length * np.cos(spec_focal_length_tilt_rad))
-                )
-            )
-            out = ((A + B) * float(1e6)) / (
-                float(self.spec_order) * float(self.spec_grooves_per_mm)
-            )
-            self._mappings = {"x_index": out, "y_index": self.y_ai}
-        else:
-            self._channel_mappings = {"image": ["x_index", "y_index"]}
-            self._mapping_units = {"x_index": "None", "y_index": "None"}
-            self._mappings = {"x_index": self.x_ai, "y_index": self.y_ai}
-        return
 
 
     def set_exposure_time(self, exposure_time):
@@ -268,11 +264,9 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.stop_update = False
         return code
 
-
     def get_exposure_time(self):
         # Gets the exposure time in seconds (float)
         return self.exposure_time
-
 
     def close(self):
         # stop loop

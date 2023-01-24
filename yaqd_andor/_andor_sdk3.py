@@ -4,7 +4,7 @@ import asyncio
 import numpy as np
 import os
 
-from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping
+from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping, HasDependents
 from typing import Any, List, Union
 from . import atcore
 from . import features
@@ -13,7 +13,7 @@ ATCore = atcore.ATCore
 ATCoreException = atcore.ATCoreException
 
 
-class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
+class AndorSDK3(HasMapping, HasMeasureTrigger, HasDependents, IsSensor, IsDaemon):
     state_features: List[str] = []
 
     def __init__(self, name, config, config_filepath):

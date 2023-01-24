@@ -21,7 +21,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self._channel_units = {"image": "counts"}
         
         #self.has_mono = bool(self._config["has_monochromator"])
-        self._spec_position = self._config["spectrometer_position"]
+        self._spec_position = self._config["spec_position"]
 
         if isinstance(self._spec_position,str):
             host,port=self._spec_position.split(":")

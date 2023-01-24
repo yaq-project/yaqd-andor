@@ -19,7 +19,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.stop_update == True
         self._channel_names = ["image"]
         self._channel_units = {"image": "counts"}
-
+        
         #self.has_mono = bool(self._config["has_monochromator"])
         self._spec_position = self._config["spectrometer_position"]
 
@@ -27,7 +27,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             host,port=self._spec_position.split(":")
             self.has_mono=True
             self.spec_client=yaqc.Client(int(port), host=host)
-            self.spec_position=self.spec_client.get_position()
+            
         elif isinstance(self._spec_position, float):
             self.has_mono=True
             self.spec_client=None
@@ -67,28 +67,29 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.max_width = self._config["pixel_width"]
         self.max_height = self._config["pixel_height"]
         self.preamp_gain = int(self._config["simple_preamp_gain_control"])
-
+            
         self._set_aoi()
-        self._gen_mappings()
+        self._initialize_spec_settings()
+        self.gen_mappings()
 
         # see p97 of SDK2 manual on the conversion of noise filters from sdk3 to sdk2 or v-v.
         # Commented out until further work done to establish differences between
         # these filters and SDK3.
         # self.sdk.Filter_SetMode(int(self._config["spurious_noise_filter"]))
         # self.sdk.Filter_SetThreshold(float(self._config["filter_threshold"]))
-
+        
         self.sdk.SetPreAmpGain(self.preamp_gain)
         self.logger.info(f"PreAmpGain: {self.preamp_gain}")
 
         self.sdk.SetExposureTime(self.exposure_time)
         self.logger.info(f"Exposure Time: {self.exposure_time} sec")
-
+        
         self._set_temperature()
         self.sdk.SetShutter(int(0), int(1), int(100), int(100))
 
-
+   
     def _initialize_spec_settings(self):
-        if self.has_mono:
+        if self.has_mono:    
             self.spec_grooves_per_mm=self._config["grooves_per_mm"]
             self.spec_order=self._config["order"]
             self.spec_focal_length=self._config["focal_length"]
@@ -98,59 +99,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.spec_order=None
             self.spec_focal_length=None
             self.spec_calibration_pixel=None
-
-
-    def _gen_mappings(self):
-        """Get map."""
-        self._initialize_spec_settings()
-
-        if self.has_mono:
-            # translate inputs into appropriate internal units
-            spec_inclusion_angle_rad=0.00
-            #spec_inclusion_angle_rad = np.radians(float(self._config["inclusion_angle"]))
-            spec_focal_length_tilt_rad=0.00
-            #spec_focal_length_tilt_rad = np.radians(float(self._config["focal_length_tilt"]))
-            pixel_width_mm = float(self.sensor_width / self.max_width) / 1000.00
-
-            self._initialize_spec_settings()
-            self._channel_mappings = {"image": ["wavelengths", "y_index"]}
-            self._mapping_units = {"wavelengths": "nm", "y_index": "None"}
-
-            # create array
-            i_pixel = np.array(self.x_ai, dtype=float)
-            eff_pixel_width_mm = float(int(self.binning) * pixel_width_mm)
-            # calculate terms
-            x = np.arcsin(
-                (
-                    1e-6
-                    * self.spec_order
-                    * self.spec_grooves_per_mm
-                    * self.spec_position
-                )
-                / (2 * np.cos(spec_inclusion_angle_rad / 2.0))
-            )
-            A = np.sin(x - spec_inclusion_angle_rad / 2)
-            B = np.sin(
-                (spec_inclusion_angle_rad)
-                + x
-                - (spec_inclusion_angle_rad / 2)
-                - np.arctan(
-                    (
-                        eff_pixel_width_mm * (i_pixel - self.spec_calibration_pixel)
-                        + self.spec_focal_length * spec_focal_length_tilt_rad
-                    )
-                    / (self.spec_focal_length * np.cos(spec_focal_length_tilt_rad))
-                )
-            )
-            out = ((A + B) * float(1e6)) / (
-                float(self.spec_order) * float(self.spec_grooves_per_mm)
-            )
-            self._mappings = {"x_index": out, "y_index": self.y_ai}
-        else:
-            self._channel_mappings = {"image": ["x_index", "y_index"]}
-            self._mapping_units = {"x_index": "None", "y_index": "None"}
-            self._mappings = {"x_index": self.x_ai, "y_index": self.y_ai}
-        return
 
 
     def _set_aoi(self):
@@ -252,6 +200,60 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         return dependents
 
 
+    def gen_mappings(self):
+        """Generate map."""
+        
+        if self.has_mono:
+            if self.spec_client is not None:
+                self.spec_position=self.spec_client.get_position()
+
+            # translate inputs into appropriate internal units
+            spec_inclusion_angle_rad=0.00
+            #spec_inclusion_angle_rad = np.radians(float(self._config["inclusion_angle"]))
+            spec_focal_length_tilt_rad=0.00
+            #spec_focal_length_tilt_rad = np.radians(float(self._config["focal_length_tilt"]))
+            pixel_width_mm = float(self.sensor_width / self.max_width) / 1000.00
+
+            self._channel_mappings = {"image": ["wavelengths", "y_index"]}
+            self._mapping_units = {"wavelengths": "nm", "y_index": "None"}
+
+            # create array
+            i_pixel = np.array(self.x_ai, dtype=float)
+            eff_pixel_width_mm = float(int(self.binning) * pixel_width_mm)
+            # calculate terms
+            x = np.arcsin(
+                (
+                    1e-6
+                    * self.spec_order
+                    * self.spec_grooves_per_mm
+                    * self.spec_position
+                )
+                / (2 * np.cos(spec_inclusion_angle_rad / 2.0))
+            )
+            A = np.sin(x - spec_inclusion_angle_rad / 2)
+            B = np.sin(
+                (spec_inclusion_angle_rad)
+                + x
+                - (spec_inclusion_angle_rad / 2)
+                - np.arctan(
+                    (
+                        eff_pixel_width_mm * (i_pixel - self.spec_calibration_pixel)
+                        + self.spec_focal_length * spec_focal_length_tilt_rad
+                    )
+                    / (self.spec_focal_length * np.cos(spec_focal_length_tilt_rad))
+                )
+            )
+            out = ((A + B) * float(1e6)) / (
+                float(self.spec_order) * float(self.spec_grooves_per_mm)
+            )
+            self._mappings = {"x_index": out, "y_index": self.y_ai}
+        else:
+            self._channel_mappings = {"image": ["x_index", "y_index"]}
+            self._mapping_units = {"x_index": "None", "y_index": "None"}
+            self._mappings = {"x_index": self.x_ai, "y_index": self.y_ai}
+        return
+
+
     def set_exposure_time(self, exposure_time):
         # Sets the exposure time in seconds (float)
         self.stop_update = True
@@ -280,7 +282,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.sdk.SetShutter(int(0), int(2), int(100), int(100))
         sleep(0.50)
         self.sdk.CoolerOFF()
-        """ # This portion of code is commented out unless it is found that the CCD needs
+        """ # This portion of code is commented out unless it is found that the CCD needs 
         # to warm up before a full close is supposed to return
         self.sensor_temp_control = int(25.0)
         code = self.sdk.SetTemperature(self.sensor_temp_control)

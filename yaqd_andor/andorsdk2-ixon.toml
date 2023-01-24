@@ -133,6 +133,10 @@ doc = "Get the CCD exposure time (sec)."
 response="null"
 doc = "Warms the camera to RT, then closes it."
 
+[messages.gen_mappings]
+response="null"
+doc = "Generates the mappings of x index of array to wavelengths if spectrometer is present."
+
 
 [state]
 

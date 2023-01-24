@@ -2,7 +2,7 @@ __all__ = ["AndorSdk2Ixon"]
 
 import asyncio
 import numpy as np
-import yaqc
+import yaqc  # type: ignore
 
 from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping, HasDependents
 from typing import Dict, Any, List, Union
@@ -101,7 +101,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
 
     def gen_mappings(self):
         """Get map."""
-
+        
         if self.has_mono:
             # translate inputs into appropriate internal units
             spec_inclusion_angle_rad = 0.00

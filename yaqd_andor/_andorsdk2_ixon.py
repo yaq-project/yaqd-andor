@@ -101,7 +101,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.spec_calibration_pixel=None
 
 
-    def _gen_mappings(self):
+    def gen_mappings(self):
         """Get map."""
         self._initialize_spec_settings()
 
@@ -113,7 +113,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             #spec_focal_length_tilt_rad = np.radians(float(self._config["focal_length_tilt"]))
             pixel_width_mm = float(self.sensor_width / self.max_width) / 1000.00
 
-            self._initialize_spec_settings()
             self._channel_mappings = {"image": ["wavelengths", "y_index"]}
             self._mapping_units = {"wavelengths": "nm", "y_index": "None"}
 

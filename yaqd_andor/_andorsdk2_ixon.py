@@ -16,7 +16,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
-        self.stop_update == True
+        self.stop_update == False
         self._channel_names = ["image"]
         self._channel_units = {"image": "counts"}
 
@@ -69,7 +69,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
 
         self._set_aoi()
         self._initialize_spec_settings()
-        self.gen_mappings()
+        self._gen_mappings()
 
         # see p97 of SDK2 manual on the conversion of noise filters from sdk3 to sdk2 or v-v.
         # Commented out until further work done to establish differences between
@@ -98,8 +98,8 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.spec_focal_length = None
             self.spec_calibration_pixel = None
 
-    def gen_mappings(self):
-        """Get map."""
+    def _gen_mappings(self):
+        """Generate map."""
 
         if self.has_mono:
             # translate inputs into appropriate internal units
@@ -222,15 +222,15 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
     def _check_temp_stabilized(self):
         code, self.sensor_temp = self.sdk.GetTemperature()
         diff = float(self.sensor_temp_control) - float(self.sensor_temp)
-        while np.abs(diff) > 1.0:  # this is a tolerance, and is subject to change
+        while (np.abs(diff) > 1.0 and self.stop_update is False):  # this is a tolerance, and is subject to change
             self.logger.info(
                 f"Sensor is cooling.  Target: {self.sensor_temp_control} C.  Current: {self.sensor_temp:0.2f} C."
             )
             sleep(3)
             code, self.sensor_temp = self.sdk.GetTemperature()
             diff = float(self.sensor_temp) - float(self.sensor_temp_control)
-
-        self.logger.info("Sensor temp is stabilized.")
+        if np.abs(diff) <= 1.0:
+            self.logger.info("Sensor temp is stabilized.")
 
     def get_dependent_hardware(self):
         dependents = dict()
@@ -286,3 +286,15 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         else:
             self.logger.info(f"Camera closed.")
         return
+
+    async def update_state(self):
+        while True:
+            if self.spec_client is not None:
+                try:
+                    self.spec_position=self.spec_client.get_position() 
+                    self._gen_mappings()
+                    await asyncio.sleep(0.1)
+                except Exception as e:
+                    self.logger.error(repr(e))
+                await asyncio.sleep(0.01)
+   

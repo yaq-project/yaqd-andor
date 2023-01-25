@@ -222,7 +222,9 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
     def _check_temp_stabilized(self):
         code, self.sensor_temp = self.sdk.GetTemperature()
         diff = float(self.sensor_temp_control) - float(self.sensor_temp)
-        while (np.abs(diff) > 1.0 and self.stop_update is False):  # this is a tolerance, and is subject to change
+        while (
+            np.abs(diff) > 1.0 and self.stop_update is False
+        ):  # this is a tolerance, and is subject to change
             self.logger.info(
                 f"Sensor is cooling.  Target: {self.sensor_temp_control} C.  Current: {self.sensor_temp:0.2f} C."
             )
@@ -291,10 +293,9 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         while True:
             if self.spec_client is not None:
                 try:
-                    self.spec_position=self.spec_client.get_position() 
+                    self.spec_position = self.spec_client.get_position()
                     self._gen_mappings()
                     await asyncio.sleep(0.1)
                 except Exception as e:
                     self.logger.error(repr(e))
                 await asyncio.sleep(0.01)
-   

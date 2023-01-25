@@ -34,7 +34,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.has_mono = False
             self.spec_client = None
             self._spec_position = None
-            
+
         hw = self.get_dependent_hardware()
 
         # find devices
@@ -85,7 +85,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self._set_temperature()
         self.sdk.SetShutter(int(0), int(1), int(100), int(100))
 
-
     def _initialize_spec_settings(self):
         if self.has_mono:
             self.spec_grooves_per_mm = self._config["grooves_per_mm"]
@@ -97,7 +96,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.spec_order = None
             self.spec_focal_length = None
             self.spec_calibration_pixel = None
-
 
     def _gen_mappings(self):
         """Generate map."""
@@ -289,7 +287,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.logger.info(f"Camera closed.")
         return
 
-
     async def _measure(self):
         timeout = self.timeout
         ret = self.sdk.StartAcquisition()
@@ -304,7 +301,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self._gen_mappings()
 
         return {"image": pixels}
-
 
     @property
     def spec_position(self) -> float:

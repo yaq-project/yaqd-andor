@@ -260,8 +260,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         return self.exposure_time
 
     def close(self):
-        # stop loop
-        [task.cancel() for task in self._spec_tasks]
         self.stop_update = True
         while self._busy == True:
             sleep(0.10)

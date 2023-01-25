@@ -30,21 +30,11 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         elif isinstance(self._spec_position, float):
             self.has_mono = True
             self.spec_client = None
-            self.spec_position = self._spec_position
         else:
             self.has_mono = False
             self.spec_client = None
-            self.spec_position = None
-        
-        if self.spec_client is not None:
-            self._spec_loop = asyncio.get_event_loop()
-            self._spec_tasks = [
-                self._spec_loop.create_task(self.update_spec_state()),
-            ]
-        else:
-            self._spec_loop =  None
-            self._spec_tasks = None
-
+            self._spec_position = None
+            
         hw = self.get_dependent_hardware()
 
         # find devices
@@ -96,8 +86,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.sdk.SetShutter(int(0), int(1), int(100), int(100))
 
 
-
-
     def _initialize_spec_settings(self):
         if self.has_mono:
             self.spec_grooves_per_mm = self._config["grooves_per_mm"]
@@ -109,6 +97,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.spec_order = None
             self.spec_focal_length = None
             self.spec_calibration_pixel = None
+
 
     def _gen_mappings(self):
         """Generate map."""
@@ -272,6 +261,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
 
     def close(self):
         # stop loop
+        [task.cancel() for task in self._spec_tasks]
         self.stop_update = True
         while self._busy == True:
             sleep(0.10)
@@ -301,13 +291,30 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.logger.info(f"Camera closed.")
         return
 
-    async def update_spec_state(self):
-        while True:
-            if self.spec_client is not None:
-                try:
-                    self.spec_position = self.spec_client.get_position()
-                    self._gen_mappings()
-                    await asyncio.sleep(0.1)
-                except Exception as e:
-                    self.logger.error(repr(e))
-                await asyncio.sleep(0.01)
+
+    async def _measure(self):
+        timeout = self.timeout
+        ret = self.sdk.StartAcquisition()
+        if ret != 20002:
+            self.logger.debug(f"_StartAcquisition error {str(self.errorlookup(ret))}")
+        while self.busy() == True:
+            await asyncio.sleep(timeout / 10)
+        ret = self._getacquireddata()
+        if ret != 20002:
+            self.logger.debug(f"_getacquireddata error {str(self.errorlookup(ret))}")
+        pixels = np.reshape(self.buffer, self._channel_shapes["image"])
+        self._gen_mappings()
+
+        return {"image": pixels}
+
+
+    @property
+    def spec_position(self) -> float:
+        if self.spec_client is None:
+            return self._spec_position
+        else:
+            units = self.spec_client.get_units()
+            # inflexible with units; can improve later
+            assert units == "nm"
+            position = self.spec_client.get_position()
+            return position

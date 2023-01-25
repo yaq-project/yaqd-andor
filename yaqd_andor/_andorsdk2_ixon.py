@@ -35,14 +35,14 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             self.has_mono = False
             self.spec_client = None
             self.spec_position = None
-        
+
         if self.spec_client is not None:
             self._spec_loop = asyncio.get_event_loop()
             self._spec_tasks = [
                 self._spec_loop.create_task(self.update_spec_state()),
             ]
         else:
-            self._spec_loop =  None
+            self._spec_loop = None
             self._spec_tasks = None
 
         hw = self.get_dependent_hardware()
@@ -94,9 +94,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
 
         self._set_temperature()
         self.sdk.SetShutter(int(0), int(1), int(100), int(100))
-
-
-
 
     def _initialize_spec_settings(self):
         if self.has_mono:

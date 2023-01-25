@@ -26,17 +26,13 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         if isinstance(self._spec_position, str):
             host, port = self._spec_position.split(":")
             self.has_mono = True
-            self.logger.info(f"self.has_mono: {self.has_mono}, string input")
             self.spec_client = yaqc.Client(int(port), host=host)
-
         elif isinstance(self._spec_position, float):
             self.has_mono = True
             self.spec_client = None
-            self.logger.info(f"self.has_mono: {self.has_mono}, float input")
             self.spec_position = self._spec_position
         else:
             self.has_mono = False
-            self.logger.info(f"self.has_mono: {self.has_mono}, null input")
             self.spec_client = None
             self.spec_position = None
 

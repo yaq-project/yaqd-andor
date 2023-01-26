@@ -193,11 +193,6 @@
             "request": [],
             "response": "null"
         },
-        "gen_mappings": {
-            "doc": "Generates the mappings of x index of array to wavelengths if spectrometer is present.",
-            "request": [],
-            "response": "null"
-        },
         "get_channel_mappings": {
             "doc": "Defines which mapping keys apply to which channel keys. Each channel may have zero or many mappings. Mappings must broadcast into corresponding channels.",
             "origin": "has-mapping",

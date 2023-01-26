@@ -16,11 +16,17 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
+
         self.stop_update == False
+        self._spec_position = self._config["spec_position"]
+        self.exposure_time = self._state["exposure_time"]
         self._channel_names = ["image"]
         self._channel_units = {"image": "counts"}
-
-        self._spec_position = self._config["spec_position"]
+        self.sensor_width = self._config["sensor_width"]
+        self.sensor_height = self._config["sensor_height"]
+        self.max_width = self._config["pixel_width"]
+        self.max_height = self._config["pixel_height"]
+        self.preamp_gain = int(self._config["simple_preamp_gain_control"])
 
         if isinstance(self._spec_position, str):
             host, port = self._spec_position.split(":")
@@ -53,15 +59,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             raise ConnectionError(
                 r"device with serial number {0} not found".format(self._config["serial_number"])
             )
-
-        self.exposure_time = self._state["exposure_time"]
-        self._channel_names = ["image"]
-        self._channel_units = {"image": "counts"}
-        self.sensor_width = self._config["sensor_width"]
-        self.sensor_height = self._config["sensor_height"]
-        self.max_width = self._config["pixel_width"]
-        self.max_height = self._config["pixel_height"]
-        self.preamp_gain = int(self._config["simple_preamp_gain_control"])
 
         self._set_aoi()
         self._initialize_spec_settings()
@@ -253,7 +250,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         return code
 
     def get_exposure_time(self):
-        # Gets the exposure time in seconds (float)
         return self.exposure_time
 
     def close(self):

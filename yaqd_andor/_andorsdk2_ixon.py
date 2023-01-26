@@ -286,6 +286,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         ret = self.sdk.StartAcquisition()
         if ret != 20002:
             self.logger.debug(f"_StartAcquisition error {str(self.errorlookup(ret))}")
+        await asyncio.sleep(self.exposure_time)
         while self.busy() == True:
             await asyncio.sleep(timeout / 10)
         ret = self._getacquireddata()

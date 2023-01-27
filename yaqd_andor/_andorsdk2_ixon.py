@@ -253,9 +253,9 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
     def close(self):
         self.stop_update = True
         while self._busy == True:
-            sleep(0.10)
+            sleep(0.50)
         self.sdk.SetShutter(int(0), int(2), int(100), int(100))
-        sleep(0.50)
+        sleep(1.00)
         self.sdk.CoolerOFF()
         """ # This portion of code is commented out unless it is found that the CCD needs
         # to warm up before a full close is supposed to return
@@ -272,7 +272,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             code, self.sensor_temp = self.sdk.GetTemperature()
             diff = float(self.sensor_temp_control) - float(self.sensor_temp)
         """
-        sleep(0.2)
+        sleep(1.00)
         code = self.sdk.ShutDown()
         if code != 20002:
             raise ValueError(str(self.errorlookup(code)) + ", not closed properly")

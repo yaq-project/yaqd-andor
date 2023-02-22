@@ -38,6 +38,8 @@ To run, you must also have access to the SKD3 driver files (not provided here):
 
 Place these files in the `yaqd-andor` package source directory.
 
+
+### Simcam needs Visual Studio
 `andor-simcam` uses Andor's virtual camera, which is useful for remote development.
 For Windows, these libraries require [Microsoft Build tools for Visual Studio](https://visualstudio.microsoft.com/downloads/) (specifically, the Windows SDK and C++ x64/x86 build tools are needed).
 
@@ -46,9 +48,9 @@ For Windows, these libraries require [Microsoft Build tools for Visual Studio](h
 The following daemons use Andor Software Development Kit v2 (SDK2)
 * `andorsdk2-ixon`
 
-To run, you must also have access to the SKD2 driver files, which should be located at
+To run, you must also have access to the SKD2 driver files:
 
-/usr/local/lib/libandor.so  OR  atmcd64d.dll /atmcd32d.dll  (Linux / Windows DLL files (64/32-bit))
+`/usr/local/lib/libandor.so` (Linux) OR  `atmcd64d.dll` /`atmcd32d.dll`  (Windows (64/32-bit))
 
 ## maintainers
 [Dan Kohler](https://github.com/ddkohler)

@@ -1,6 +1,7 @@
 protocol = "andor-neo"
 doc = ""
 traits = ["has-mapping", "has-measure-trigger", "is-sensor", "is-daemon"]
+hardware = ["andor:neo-5-5"]
 
 [links]
 source = "https://github.com/yaq-project/yaqd-andor"

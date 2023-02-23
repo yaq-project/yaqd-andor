@@ -76,7 +76,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.logger.info(f"Exposure Time: {self.exposure_time} sec")
 
         self._set_temperature()
-        self.sdk.SetShutter(int(0), int(1), int(100), int(100))
+        self.sdk.SetShutter(0, 1, 100, 100)
 
     def _initialize_spec_settings(self):
         if self.has_mono:
@@ -154,8 +154,8 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         if height is None:
             height = self.max_height - top + 1
 
-        arrwidth = int(int(width) / int(binning))
-        arrheight = int(int(height) / int(binning))
+        arrwidth = width // binning
+        arrheight = height // binning
 
         right = left + arrwidth - 1
         bottom = top + arrheight - 1
@@ -163,8 +163,8 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         self.logger.debug(
             f"{self.max_width}, {self.max_height}, {binning}, {width}, {height}, {top}"
         )
-        w_extent = int(width * binning + (left - 1))
-        h_extent = int(height * binning + (top - 1))
+        w_extent = width * binning + (left - 1)
+        h_extent = height * binning + (top - 1)
         if w_extent > self.max_width:
             raise ValueError(f"height extends over {w_extent} pixels, max is {self.max_width}")
         if h_extent > self.max_height:
@@ -180,7 +180,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             raise ValueError(str(self.errorlookup(code)))
 
         else:
-            self.buffer_size = int(int(width) * int(height))
+            self.buffer_size = width * height 
             self.buffer = np.zeros([arrwidth, arrheight], dtype=int)
             self.buffer = np.ascontiguousarray(self.buffer, dtype=int)
 
@@ -246,7 +246,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         return self.exposure_time
 
     def close(self):
-        self.sdk.SetShutter(int(0), int(2), int(100), int(100))
+        self.sdk.SetShutter(0, 2, 100, 100)
         sleep(1.00)
         self.sdk.CoolerOFF()
         """ # This portion of code is commented out unless it is found that the CCD needs

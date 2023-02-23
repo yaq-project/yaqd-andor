@@ -69,6 +69,7 @@
         }
     },
     "doc": "",
+    "hardware": "andor:sona",
     "installation": {
         "PyPI": "https://pypi.org/project/yaqd-andor"
     },

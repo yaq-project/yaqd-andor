@@ -1,6 +1,7 @@
 protocol = "andor-sona"
 doc = ""
 traits = ["has-mapping", "has-measure-trigger", "is-sensor", "is-daemon"]
+hardware = "andor:sona"
 
 [links]
 source = "https://github.com/yaq-project/yaqd-andor"

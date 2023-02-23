@@ -1,6 +1,7 @@
 protocol = "andorsdk2-ixon"
 doc = ""
 traits = ["has-mapping", "has-measure-trigger", "is-sensor", "is-daemon", "has-dependents"]
+hardware = "andor:ixon"
 
 [links]
 source = "https://gitlab.com/yaq/yaqd-andorsdk2"

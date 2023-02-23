@@ -4,7 +4,6 @@ import numpy as np
 
 
 def main():
-
     print("Single Scan Example")
 
     print("Intialising SDK3")
@@ -14,7 +13,6 @@ def main():
     print("Found : ", deviceCount, " device(s)")
 
     if deviceCount > 0:
-
         try:
             print("  Opening camera ")
             hndl = sdk3.open(0)

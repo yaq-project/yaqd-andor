@@ -19,7 +19,6 @@ class ATCoreException(Exception):
 
 
 class ATCore(object):
-
     _ERRORS = {
         0: "AT_SUCCESS",
         1: "AT_ERR_NOTINITIALISED",

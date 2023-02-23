@@ -42,13 +42,8 @@ class AndorSDK2(HasMapping, HasMeasureTrigger, HasDependents, IsSensor, IsDaemon
             (ret) = self.sdk.Initialize("")
             if ret != int(20002):
                 self.logger.debug(f"init error {str(self.errorlookup(ret))}")
-                self.stop_update = True
-            else:
-                self.stop_update = False
-        else:
-            self.stop_update = False
         self._busy = False
-        self.timeout = 0.100  # to be overwritten by child
+        self.timeout = 0.100  # may be overwritten by child
 
     def finddllpath(self):
         if sys.platform == "linux":
@@ -75,7 +70,6 @@ class AndorSDK2(HasMapping, HasMeasureTrigger, HasDependents, IsSensor, IsDaemon
         if ret != 20002:
             self.logger.debug(f"_getacquireddata error {str(self.errorlookup(ret))}")
         pixels = np.reshape(self.buffer, self._channel_shapes["image"])
-
         return {"image": pixels}
 
     def _getacquireddata(self):
@@ -84,22 +78,19 @@ class AndorSDK2(HasMapping, HasMeasureTrigger, HasDependents, IsSensor, IsDaemon
         csize = ctypes.c_ulong(imgsize)
         ret = self.sdk.dll.GetAcquiredData(ctypes.byref(carr), csize)
         self.buffer = np.asarray(carr, dtype=int)
-
         return ret
 
     async def update_state(self):
         while True:
-            if self.stop_update == False:
-                (code, state) = self.sdk.GetStatus()
-                if state == 20072:
-                    self._busy = True
-                elif state == 20073:
-                    self._busy = False
-                elif state == 20074:
-                    self._busy = False
-                else:
-                    self.logger.debug(f"update_state error {str(self.errorlookup(state))}")
-                    self._busy = False
+            (code, state) = self.sdk.GetStatus()
+            if state == 20072:
+                self._busy = True
+            elif state == 20073:
+                self._busy = False
+            elif state == 20074:
+                self._busy = False
+            else:
+                self.logger.debug(f"update_state error {str(self.errorlookup(state))}")
             await asyncio.sleep(0.10)
 
     def errorlookup(self, code):
@@ -237,12 +228,7 @@ class AndorSDK2(HasMapping, HasMeasureTrigger, HasDependents, IsSensor, IsDaemon
             "DRV_OA_CAMERA_NOT_AVAILABLE": 20196,
             "DRV_PROCESSING_FAILED": 20211,
         }
-
         keyout = []
-        for key, val in errordict.items():
-            if val == code:
-                keyout.append(key)
-        if len(keyout) > 0:
-            return str(keyout[0])
-        else:
-            return ValueError("Code not found in error dictionary")
+        code_to_str= {v: k for k, v in errordict.items() }
+        return code_to_str[code]
+

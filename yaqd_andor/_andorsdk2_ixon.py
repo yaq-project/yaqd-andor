@@ -4,7 +4,6 @@ import asyncio
 import numpy as np
 import yaqc  # type: ignore
 
-from yaqd_core import IsDaemon, IsSensor, HasMeasureTrigger, HasMapping, HasDependents
 from typing import Dict, Any, List, Union
 from . import _andor_sdk2
 import ctypes
@@ -17,7 +16,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
 
-        self.stop_update == False
+        self.stop_update = False
         self._spec_position = self._config["spec_position"]
         self.exposure_time = self._state["exposure_time"]
         self._channel_names = ["image"]
@@ -235,25 +234,18 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
 
     def set_exposure_time(self, exposure_time):
         # Sets the exposure time in seconds (float)
-        self.stop_update = True
-        while self._busy == True:
-            sleep(0.10)
         code = self.sdk.SetExposureTime(float(exposure_time))
         if code != 20002:
             raise ValueError(str(self.errorlookup(code)))
         else:
             self.exposure_time = exposure_time
             self.logger.info(f"New exposure time is {self.exposure_time} sec.")
-        self.stop_update = False
         return code
 
     def get_exposure_time(self):
         return self.exposure_time
 
     def close(self):
-        self.stop_update = True
-        while self._busy == True:
-            sleep(0.50)
         self.sdk.SetShutter(int(0), int(2), int(100), int(100))
         sleep(1.00)
         self.sdk.CoolerOFF()
@@ -287,7 +279,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         if ret != 20002:
             self.logger.debug(f"_StartAcquisition error {str(self.errorlookup(ret))}")
         await asyncio.sleep(self.exposure_time)
-        while self.busy() == True:
+        while self.busy():
             await asyncio.sleep(timeout / 10)
         ret = self._getacquireddata()
         if ret != 20002:

@@ -229,6 +229,5 @@ class AndorSDK2(HasMapping, HasMeasureTrigger, HasDependents, IsSensor, IsDaemon
             "DRV_PROCESSING_FAILED": 20211,
         }
         keyout = []
-        code_to_str= {v: k for k, v in errordict.items() }
+        code_to_str = {v: k for k, v in errordict.items()}
         return code_to_str[code]
-

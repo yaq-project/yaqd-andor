@@ -9,7 +9,7 @@ author = "yaq developers"
 home-page = "https://yaq.fyi"
 description-file = "README.md"
 requires-python = ">=3.7"
-requires = ["yaqd-core>=2021.03.0", "setuptools", "cffi>=1.13", "numpy>=1.20"]
+requires = ["yaqd-core>=2021.03.0", "setuptools", "cffi>=1.13", "numpy>=1.20", "yaqc"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Science/Research",
@@ -32,6 +32,7 @@ dev = ["black", "pre-commit"]
 yaqd-andor-neo = "yaqd_andor._andor_neo:AndorNeo.main"
 yaqd-andor-simcam = "yaqd_andor._andor_simcam:AndorSimcam.main"
 yaqd-andor-sona = "yaqd_andor._andor_sona:AndorSona.main"
+yaqd-andorsdk2-ixon = "yaqd_andor._andorsdk2_ixon:AndorSdk2Ixon.main"
 
 [tool.flit.sdist]
 exclude=["supplemental/"]

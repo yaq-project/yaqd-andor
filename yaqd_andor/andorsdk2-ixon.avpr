@@ -1,10 +1,62 @@
 {
     "config": {
+        "aoi_binning": {
+            "default": 1,
+            "doc": "Option to bin pixels both horizontally and vertically. \\\n    Default is no binning (1).",
+            "type": "int"
+        },
+        "aoi_height": {
+            "default": null,
+            "doc": "Specify the number of pixel rows to acquire. \\\n    Can be no larger than `sensor_height` - (`aoi_top` - 1). \\\n    Defaults to use all rows starting from `aoi_top`. \\\n    ",
+            "type": [
+                "null",
+                "int"
+            ]
+        },
+        "aoi_left": {
+            "default": null,
+            "doc": "Specify left-most pixel column of the AOI. \\\n    Defaults to the full left of the camera sensor (column 1). \\\n    ",
+            "type": [
+                "null",
+                "int"
+            ]
+        },
+        "aoi_top": {
+            "default": null,
+            "doc": "Specify the top-most pixel row of the AOI. \\\n    Defaults to the top of the camera sensor (1). \\\n    ",
+            "type": [
+                "null",
+                "int"
+            ]
+        },
+        "aoi_width": {
+            "default": null,
+            "doc": "Specify the number of pixel columns to acquire. \\\n    Can be no larger than `sensor_width` - (`aoi_left` - 1). \\\n    Defaults to use all columns starting from `aoi_left`. \\\n    ",
+            "type": [
+                "null",
+                "int"
+            ]
+        },
+        "calibration_pixel": {
+            "default": 256,
+            "doc": "Pixel number (horiz) to which the wavelength of the monochromator is pegged if active.",
+            "type": "int"
+        },
         "enable": {
             "default": true,
             "doc": "Disable this daemon. The kind entry-point will not attempt to start this daemon.",
             "origin": "is-daemon",
             "type": "boolean"
+        },
+        "focal_length": {
+            "default": 320.0,
+            "doc": "Focal length of monochromator if active (mm).",
+            "type": "float"
+        },
+        "grooves_per_mm": {
+            "default": 600.0,
+            "doc": "number of grooves per mm for the grating if active.",
+            "type": "float"
         },
         "log_level": {
             "default": "info",
@@ -38,7 +90,7 @@
             "type": "boolean"
         },
         "make": {
-            "default": "andor",
+            "default": "andorsdk2",
             "origin": "is-daemon",
             "type": [
                 "null",
@@ -46,17 +98,52 @@
             ]
         },
         "model": {
-            "default": "sona",
+            "default": "ixon",
             "origin": "is-daemon",
             "type": [
                 "null",
                 "string"
             ]
         },
+        "order": {
+            "default": 1,
+            "doc": "order of the grating used in the monochromator if active.",
+            "type": "int"
+        },
+        "pixel_height": {
+            "default": 512,
+            "doc": "sensor height in pixels",
+            "type": "int"
+        },
+        "pixel_width": {
+            "default": 512,
+            "doc": "sensor width in pixels",
+            "type": "int"
+        },
         "port": {
             "doc": "TCP port for daemon to occupy.",
             "origin": "is-daemon",
             "type": "int"
+        },
+        "sensor_cooling": {
+            "default": false,
+            "doc": "Set whether or not sensor will be cooled.",
+            "type": "boolean"
+        },
+        "sensor_height": {
+            "default": 8192.0,
+            "doc": "sensor height in microns",
+            "type": "float"
+        },
+        "sensor_temperature": {
+            "default": -40,
+            "doc": "target temperature to cool if sensor cooling is on",
+            "type": "int"
+        },
+        "sensor_width": {
+            "default": 8192.0,
+            "doc": "sensor width in microns",
+            "type": "float"
         },
         "serial": {
             "default": null,
@@ -66,16 +153,34 @@
                 "null",
                 "string"
             ]
+        },
+        "serial_number": {
+            "default": 0,
+            "type": "int"
+        },
+        "simple_preamp_gain_control": {
+            "default": 1,
+            "doc": "Set Preamp gain, as integer (0 = 1.0x, 1 =2.3x, 2 =4.7x, no others available)",
+            "type": "int"
+        },
+        "spec_position": {
+            "default": null,
+            "doc": "Spectrometer central wavelength (in nm) if float.  If null, no spectrometer.  Can also poll `has-position` daemon for position by providing string of format 'host:port'.",
+            "type": [
+                "null",
+                "float",
+                "string"
+            ]
         }
     },
     "doc": "",
-    "hardware": "andor:sona",
+    "hardware": "andor:ixon",
     "installation": {
-        "PyPI": "https://pypi.org/project/yaqd-andor"
+        "PyPI": "https://pypi.org/project/yaqd-andorsdk2-ixon"
     },
     "links": {
-        "bugtracker": "https://github.com/yaq-project/yaqd-andor/issues",
-        "source": "https://github.com/yaq-project/yaqd-andor"
+        "bugtracker": "https://gitlab.com/yaq/yaqd-andorsdk2/-/issues",
+        "source": "https://gitlab.com/yaq/yaqd-andorsdk2"
     },
     "messages": {
         "busy": {
@@ -83,6 +188,11 @@
             "origin": "is-daemon",
             "request": [],
             "response": "boolean"
+        },
+        "close": {
+            "doc": "Warms the camera to RT, then closes it.",
+            "request": [],
+            "response": "null"
         },
         "get_channel_mappings": {
             "doc": "Defines which mapping keys apply to which channel keys. Each channel may have zero or many mappings. Mappings must broadcast into corresponding channels.",
@@ -140,6 +250,20 @@
             "origin": "is-daemon",
             "request": [],
             "response": "string"
+        },
+        "get_dependent_hardware": {
+            "doc": "Return a map of names to host:port strings for dependent yaq daemons\n\nClients are expected to translate localhost/127.0.0.1 to the host on which they contact the parent.\nClients are not guaranteed to be able to communicate with dependent hardware, even if the parent can.\n",
+            "origin": "has-dependents",
+            "request": [],
+            "response": {
+                "type": "map",
+                "values": "string"
+            }
+        },
+        "get_exposure_time": {
+            "doc": "Get the CCD exposure time (sec).",
+            "request": [],
+            "response": "float"
         },
         "get_mapping_id": {
             "doc": "Mapping ID. This integer increments every time the mapping is updated. Clients can safely check this id to verify that their cached mappings are correct, if desired.",
@@ -223,6 +347,16 @@
             ],
             "response": "int"
         },
+        "set_exposure_time": {
+            "doc": "Set the CCD exposure time (sec).",
+            "request": [
+                {
+                    "name": "exposure_time",
+                    "type": "float"
+                }
+            ],
+            "response": "null"
+        },
         "shutdown": {
             "doc": "Cleanly shutdown (or restart) daemon.",
             "origin": "is-daemon",
@@ -242,21 +376,30 @@
             "response": "null"
         }
     },
-    "protocol": "andor-sona",
+    "properties": {
+        "exposure_time": {
+            "control_kind": "hinted",
+            "dynamic": true,
+            "getter": "get_exposure_time",
+            "limits_getter": null,
+            "options_getter": null,
+            "record_kind": "metadata",
+            "setter": "set_exposure_time",
+            "type": "float",
+            "units_getter": null
+        }
+    },
+    "protocol": "andorsdk2-ixon",
     "requires": [],
     "state": {
-        "accumulate_count": {
-            "default": 1,
-            "doc": "Number of images that should be summed to obtain each image.",
-            "type": "int"
-        },
         "exposure_time": {
-            "default": 1,
-            "doc": "Requested Exposure time, in seconds.",
+            "default": 1.0,
+            "doc": "exposure time in seconds(float).",
             "type": "float"
         }
     },
     "traits": [
+        "has-dependents",
         "has-mapping",
         "has-measure-trigger",
         "is-daemon",

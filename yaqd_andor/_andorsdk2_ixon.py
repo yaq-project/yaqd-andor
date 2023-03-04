@@ -180,7 +180,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
             raise ValueError(str(self.errorlookup(code)))
 
         else:
-            self.buffer_size = width * height 
+            self.buffer_size = width * height
             self.buffer = np.zeros([arrwidth, arrheight], dtype=int)
             self.buffer = np.ascontiguousarray(self.buffer, dtype=int)
 

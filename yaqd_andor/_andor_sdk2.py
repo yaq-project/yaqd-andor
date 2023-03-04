@@ -60,17 +60,24 @@ class AndorSDK2(HasMapping, HasMeasureTrigger, HasDependents, IsSensor, IsDaemon
             return FileNotFoundError("cannot find appropriate library on this OS")
 
     async def _measure(self):
+        # overrides _andor_sdk2
         timeout = self.timeout
         ret = self.sdk.StartAcquisition()
         if ret != 20002:
             self.logger.debug(f"_StartAcquisition error {str(self.errorlookup(ret))}")
-        while self.busy() == True:
+        await asyncio.sleep(self.exposure_time)
+        while self.busy():
             await asyncio.sleep(timeout / 10)
         ret = self._getacquireddata()
         if ret != 20002:
             self.logger.debug(f"_getacquireddata error {str(self.errorlookup(ret))}")
         pixels = np.reshape(self.buffer, self._channel_shapes["image"])
+        self._gen_mappings()
+
         return {"image": pixels}
+
+    def _gen_mappings(self):
+        pass
 
     def _getacquireddata(self):
         imgsize = self.buffer_size
@@ -83,9 +90,7 @@ class AndorSDK2(HasMapping, HasMeasureTrigger, HasDependents, IsSensor, IsDaemon
     async def update_state(self):
         while True:
             (code, state) = self.sdk.GetStatus()
-            if state == 20072:
-                self._busy = True
-            elif state == 20073:
+            if state == 20073:
                 self._busy = False
             elif state == 20074:
                 self._busy = False

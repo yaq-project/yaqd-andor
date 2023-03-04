@@ -92,7 +92,7 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
 
     def _gen_mappings(self):
         """Generate map."""
-
+        # Overrides the parent
         if self.has_mono:
             # translate inputs into appropriate internal units
             spec_inclusion_angle_rad = 0.00
@@ -271,23 +271,6 @@ class AndorSdk2Ixon(_andor_sdk2.AndorSDK2):
         else:
             self.logger.info(f"Camera closed.")
         return
-
-    async def _measure(self):
-        # overrides _andor_sdk2
-        timeout = self.timeout
-        ret = self.sdk.StartAcquisition()
-        if ret != 20002:
-            self.logger.debug(f"_StartAcquisition error {str(self.errorlookup(ret))}")
-        await asyncio.sleep(self.exposure_time)
-        while self.busy():
-            await asyncio.sleep(timeout / 10)
-        ret = self._getacquireddata()
-        if ret != 20002:
-            self.logger.debug(f"_getacquireddata error {str(self.errorlookup(ret))}")
-        pixels = np.reshape(self.buffer, self._channel_shapes["image"])
-        self._gen_mappings()
-
-        return {"image": pixels}
 
     @property
     def spec_position(self) -> float:

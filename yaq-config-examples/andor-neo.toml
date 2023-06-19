@@ -1,0 +1,12 @@
+[andor_camera]
+port = 38999
+aoi_binning = "1x1"
+sensor_cooling = true
+# electronic_shuttering_mode = "Global"
+# spurious_noise_filter = true
+# static_blemish_correction = true
+# exposure_time = 30
+aoi_left = 1225
+aoi_width = 200
+aoi_top = 980
+aoi_height = 200

@@ -89,7 +89,7 @@ class AndorNeo(_andor_sdk3.AndorSDK3):
         if sensor_cooling:
             set_temp = self.features["temperature_control"].get()
             self.logger.info(f"Sensor is cooling.  Target temp is {set_temp} C.")
-            self._loop.run_in_executor(None, self._check_temp_stabilized)
+            asyncio.get_running_loop().run_in_executor(None, self._check_temp_stabilized)
         else:
             sensor_temp = self.features["sensor_temperature"].get()
             self.logger.info(f"Sensor is not cooled.  Current temp is {sensor_temp} C.")

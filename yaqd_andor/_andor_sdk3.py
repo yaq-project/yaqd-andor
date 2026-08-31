@@ -99,7 +99,7 @@ class AndorSDK3(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             # acquire frame
             self.features["acquisition_start"]()
             self.logger.debug("Waiting on buffer")
-            (returnedBuf, returnedSize) = await self._loop.run_in_executor(
+            (returnedBuf, returnedSize) = await asyncio.get_running_loop().run_in_executor(
                 None, self.sdk.wait_buffer, self.hndl, timeout
             )
             self.logger.debug("Done waiting on buffer")

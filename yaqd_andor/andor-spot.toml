@@ -1,0 +1,177 @@
+protocol = "andor-spot"
+doc = ""
+traits = ["has-mapping", "has-measure-trigger", "is-sensor", "is-daemon"]
+hardware = ["andor:spot-5-5"]
+
+[links]
+source = "https://github.com/yaq-project/yaqd-andor"
+bugtracker = "https://github.com/yaq-project/yaqd-andor/issues"
+
+[installation]
+PyPI = "https://pypi.org/project/yaqd-andor"
+
+
+[config]
+
+[config.make]
+default = "andor"
+
+[config.model]
+default = "neo"
+
+[config.nframes]
+default = 1
+
+[config.sensor_cooling]
+type = "boolean"
+doc = "Set whether or not sensor will be cooled."
+default = false
+
+[config.aoi_binning]
+type = "string"  # "binning_modes"
+doc = """Option to bin pixels both horizontally and vertically. \\
+    '1x1', '2x2', '4x4', or '8x8'.  Default is no binning ('1x1').  """
+default = "1x1"
+
+[config.aoi_width]
+type = ["null", "int"]
+doc = """Specify the number of pixel columns to acquire. \\
+    Can be no larger than `sensor_width` - (`aoi_left` - 1). \\
+    Defaults to use all columns starting from `aoi_left`. \\
+    """
+default = "__null__"
+
+[config.aoi_left]
+type = ["null", "int"]
+doc = """Specify left-most pixel column of the AOI. \\
+    Defaults to the full left of the camera sensor (column 1). \\
+    """
+default = "__null__"
+
+[config.aoi_height]
+type = ["null", "int"]
+doc = """Specify the number of pixel rows to acquire. \\
+    Can be no larger than `sensor_height` - (`aoi_top` - 1). \\
+    Defaults to use all rows starting from `aoi_top`. \\
+    """
+default = "__null__"
+
+[config.aoi_top]
+type = ["null", "int"]
+doc = """Specify the top-most pixel row of the AOI. \\
+    Defaults to the top of the camera sensor (1). \\
+    """
+default = "__null__"
+
+
+[state]
+
+exposure_time.type = "float"
+exposure_time.default = -1
+simple_preamp_gain_control.type = "string"
+simple_preamp_gain_control.default = "16-bit (low noise & high well capacity)"
+spurious_noise_filter.type = "boolean"
+spurious_noise_filter.default = true
+static_blemish_correction.type = "boolean"
+static_blemish_correction.default = true
+pixel_readout_rate.type = "string"
+pixel_readout_rate.default = ""
+electronic_shuttering_mode.type = "string"
+electronic_shuttering_mode.default = "Rolling"
+frame_wait.type = "float"
+frame_wait.default = 0
+
+[messages]
+
+get_sensor_info.doc = "Return a dictionary containing information about the sensor."
+get_sensor_info.response = {'type'= 'map', 'values'= ["int", "float"]}
+
+# --- generic features -------------------------------------------------------------
+
+get_feature_names.response = {"type"='array', "items"="string"}
+get_feature_names.doc =  "Return a list of available SDK features. All features names are snake case (e.g. `sensor_temperature`), distinct from Pascal case (e.g. SensorTemperature) of the direct SDK."
+
+get_feature_value.doc = "Reads the current value for the specified (snake case) feature name."
+get_feature_value.request = [{"name"="feature_name", "type"="string"}]
+get_feature_value.response = ["string", "int", "float", "boolean"]
+
+get_feature_options.doc = "Return enumerated options for specified feature name (snake case). If specified feature is not type `enum`, raises error."
+get_feature_options.request = [{"name"="feature_name", "type"="string"}]
+get_feature_options.response = {"type"="array", "items"="string"}
+
+get_feature_limits.request = [{"name"="feature_name", "type"="string"}]
+get_feature_limits.response = {"type"="array", "items"="float"}
+
+# --- specific features ------------------------------------------------------
+
+set_exposure_time.request = [{"name"="value", "type"="float"}]
+get_exposure_time.response = "float"
+get_exposure_time_limits.response = {"type"="array", "items"="float"}
+
+set_pixel_readout_rate.request = [{"name"="value", "type"="string"}]
+get_pixel_readout_rate.response = "string"
+get_pixel_readout_rate_options.response = {"type"="array", "items"="string"}
+
+set_electronic_shuttering_mode.request = [{"name"="value", "type"="string"}]
+get_electronic_shuttering_mode.response = "string"
+get_electronic_shuttering_mode_options.response = {"type"="array", "items"="string"}
+
+set_spurious_noise_filter.request = [{"name"="value", "type"="boolean"}]
+get_spurious_noise_filter.response = "boolean"
+
+set_static_blemish_correction.request = [{"name"="value", "type"="boolean"}]
+get_static_blemish_correction.response = "boolean"
+
+set_simple_preamp_gain_control.request = [{"name"="value", "type"="string"}]
+get_simple_preamp_gain_control.response = "string"
+get_simple_preamp_gain_control_options.response = {"type"="array", "items"="string"}
+
+
+[properties]
+
+[properties.exposure_time]
+setter = "set_exposure_time"
+getter = "get_exposure_time"
+limits_getter = "get_exposure_time_limits"
+control_kind = "hinted"
+record_kind = "metadata"
+type = "double"
+
+[properties.spurious_noise_filter]
+setter = "set_spurious_noise_filter"
+getter = "get_spurious_noise_filter"
+control_kind = "normal"
+record_kind = "metadata"
+type = "boolean"
+
+[properties.blemish_correction]
+setter = "set_static_blemish_correction"
+getter = "get_static_blemish_correction"
+control_kind = "normal"
+record_kind = "metadata"
+type = "boolean"
+
+[properties.preamp_gain]
+setter = "set_simple_preamp_gain_control"
+getter = "get_simple_preamp_gain_control"
+options_getter = "get_simple_preamp_gain_control_options"
+control_kind = "normal"
+record_kind = "metadata"
+type = "string"
+
+[properties.readout_rate]
+setter = "set_pixel_readout_rate"
+getter = "get_pixel_readout_rate"
+options_getter = "get_pixel_readout_rate_options"
+control_kind = "normal"
+record_kind = "metadata"
+type = "string"
+
+[properties.shuttering]
+setter = "set_electronic_shuttering_mode"
+getter = "get_electronic_shuttering_mode"
+options_getter = "get_electronic_shuttering_mode_options"
+control_kind = "normal"
+record_kind = "metadata"
+type = "string"
+

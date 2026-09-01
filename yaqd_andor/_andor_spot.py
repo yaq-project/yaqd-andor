@@ -1,4 +1,4 @@
-__all__ = ["AndorMOKE"]
+__all__ = ["AndorSpot"]
 
 import asyncio
 import numpy as np
@@ -16,7 +16,7 @@ ATCoreException = atcore.ATCoreException
 
 
 class AndorSpot(_andor_sdk3.AndorSDK3):
-    _kind = "andor-moke"
+    _kind = "andor-spot"
     state_features = [
         "exposure_time",
         "pixel_readout_rate",
@@ -39,13 +39,15 @@ class AndorSpot(_andor_sdk3.AndorSDK3):
             k: (self.nframes,) for k in self._channel_mappings
         }
         index_ai = np.arange(self.nframes)
-        index = index.__array_interface__
-        index.data = index_ai.tobytes()
+        index = index_ai.__array_interface__
+        index["data"] = index_ai.tobytes()
         self._mappings = {"index": index}
 
 
-        if self._config["background_image"] is not None:
+        if self._config["background_image"]:
             self.bg = np.load(pathlib.Path(self._config["background_image"]))
+        else:
+            self.bg = 0
         self._set_aoi()
         self._set_temperature()
 
@@ -70,6 +72,8 @@ class AndorSpot(_andor_sdk3.AndorSDK3):
             height = max_height - top + 1
         width //= binning
         height //= binning
+
+        self.image_shape = (height, width)
 
         self.logger.debug(f"{max_width}, {max_height}, {binning}, {width}, {height}, {top}")
         w_extent = width * binning + (left - 1)
@@ -124,6 +128,7 @@ class AndorSpot(_andor_sdk3.AndorSDK3):
         outs = {
             k: [] for k in self._channel_names
         }
+        stride = self.features["aoi_stride"].get()
 
         async def frames():
             """
@@ -138,39 +143,38 @@ class AndorSpot(_andor_sdk3.AndorSDK3):
 
         try:
             async for i in frames():  # use a generator with a timer?
-                self.logger.debug(f"{i=}")
+                self.logger.info(f"{i=}")
                 self.sdk.queue_buffer(self.hndl, bufs[i].ctypes.data, image_size_bytes)
                 # acquire frame
                 self.features["acquisition_start"]()
                 outs["timestamp"].append(time())
-                self.logger.debug("Waiting on buffer")
-                (returnedBuf, returnedSize) = await asyncio.get_running_loop().run_in_executor(
-                    None, self.sdk.wait_buffer, self.hndl, timeout
-                )
-                self.logger.debug("Done waiting on buffer")
+                # executor too slow for this purpose
+                # (returnedBuf, returnedSize) = await asyncio.get_running_loop().run_in_executor(
+                #     None, self.sdk.wait_buffer, self.hndl, timeout
+                # )
+                self.sdk.wait_buffer(self.hndl, timeout)
                 self.features["acquisition_stop"]()
 
-                stride = self.features["aoi_stride"].get()
                 iframe = np.lib.stride_tricks.as_strided(
                     np.frombuffer(bufs[i], dtype=np.uint16),
-                    shape=self._channel_shapes["image"],
+                    shape=self.image_shape,
                     strides=(stride, 2),
                 ) - self.bg
-                mi = self.process_frames(np.ascontiguousarray(iframe))
+                mi = self.process_frame(np.ascontiguousarray(iframe))
                 for k, v in mi.items():
                     outs[k].append(v)
 
-        except ATCoreException as err:
-            self.logger.error(f"SDK3 Error on frame {i}: {err}")
+        except Exception as err:
+            self.logger.error(f'frame={i}', exc_info=True)
 
         self.sdk.flush(self.hndl)
 
-        return outs
+        return {k: np.array(v) for k, v in outs.items()}
 
     def process_frame(self, frame) -> dict:
         mean = frame.mean()
-        xpos = (frame * np.arange(mean.shape[0])[:, None]).mean() / mean
-        ypos = (frame * np.arange(mean.shape[1])[None, :]).mean() / mean
+        xpos = (frame * np.arange(frame.shape[0])[:, None]).mean() / mean
+        ypos = (frame * np.arange(frame.shape[1])[None, :]).mean() / mean
         return {"mean": mean, "xpos": xpos, "ypos": ypos}
 
 

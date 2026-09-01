@@ -20,7 +20,12 @@ default = "andor"
 default = "neo"
 
 [config.nframes]
+type = "int"
 default = 1
+
+[config.background_image]
+type ="string"
+default = ""
 
 [config.sensor_cooling]
 type = "boolean"

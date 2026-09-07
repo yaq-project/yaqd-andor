@@ -29,7 +29,7 @@ def main():
 
             print("    Acquiring Frame")
             sdk3.command(hndl, "AcquisitionStart")
-            (returnedBuf, returnedSize) = sdk3.wait_buffer(hndl)
+            returnedBuf, returnedSize = sdk3.wait_buffer(hndl)
 
             print("    Frame Returned, first 10 pixels")
             pixels = buf.view(dtype="H")

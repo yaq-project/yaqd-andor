@@ -57,7 +57,7 @@ class AndorSona(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
             # acquire frame
             self.sdk3.command(self.hndl, "AcquisitionStart")
             self.logger.debug("Waiting on buffer")
-            (returnedBuf, returnedSize) = self.sdk3.wait_buffer(self.hndl)
+            returnedBuf, returnedSize = self.sdk3.wait_buffer(self.hndl)
             self.logger.debug("Done waiting on buffer")
             self.logger.debug(f"{imageSizeBytes}, {returnedSize}")
             self.sdk3.command(self.hndl, "AcquisitionStop")

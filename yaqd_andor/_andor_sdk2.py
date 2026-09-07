@@ -33,13 +33,13 @@ class AndorSDK2(HasMapping, HasMeasureTrigger, HasDependents, IsSensor, IsDaemon
         super().__init__(name, config, config_filepath)
         self.dllpath = self.finddllpath()
         self.sdk = atmcd.atmcd(userPath=self.dllpath)
-        (ret) = self.sdk.Initialize("")
+        ret = self.sdk.Initialize("")
         sleep(
             1
         )  # could not figure why it gave a 20013 error once...I put an extra delay in here til I
         # can figure it out
         if ret != int(20002):
-            (ret) = self.sdk.Initialize("")
+            ret = self.sdk.Initialize("")
             if ret != int(20002):
                 self.logger.debug(f"init error {str(self.errorlookup(ret))}")
         self._busy = False
@@ -89,7 +89,7 @@ class AndorSDK2(HasMapping, HasMeasureTrigger, HasDependents, IsSensor, IsDaemon
 
     async def update_state(self):
         while True:
-            (code, state) = self.sdk.GetStatus()
+            code, state = self.sdk.GetStatus()
             if state == 20073:
                 self._busy = False
             elif state == 20074:

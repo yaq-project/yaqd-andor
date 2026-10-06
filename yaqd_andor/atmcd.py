@@ -5,7 +5,6 @@ import os, sys
 from typing import List
 import numpy as np
 
-
 MAX_PATH = 256
 
 

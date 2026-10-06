@@ -122,8 +122,7 @@ class ATCore(object):
 
         self.ffi = FFI()
         self.ffi.set_unicode(True)
-        self.C = self.ffi.cdef(
-            """
+        self.C = self.ffi.cdef("""
         typedef int AT_H;
         typedef int AT_BOOL;
         typedef long long AT_64;
@@ -180,8 +179,7 @@ class ATCore(object):
         int AT_WaitBuffer(AT_H Hndl, AT_U8** Ptr, int* PtrSize, unsigned int Timeout);
         int AT_Flush(AT_H Hndl);
 
-        """
-        )
+        """)
         dirs = pathlib.Path(__file__).parent
         self.lib = self.ffi.dlopen(str(dirs / "atcore"))
         self.handle_return(self.lib.AT_InitialiseLibrary())
